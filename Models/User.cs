@@ -31,3 +31,4 @@ public class User
 
     public virtual ICollection<Bill> Bills { get; set; } = new List<Bill>();
 }
+

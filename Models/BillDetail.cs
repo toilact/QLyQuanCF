@@ -29,3 +29,4 @@ public class BillDetail
     [NotMapped]
     public decimal LineTotal => Quantity * UnitPrice;
 }
+

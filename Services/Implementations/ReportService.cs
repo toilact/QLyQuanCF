@@ -62,3 +62,4 @@ public class ReportService : IReportService
         return details.Select(d => (d.ProductName, d.QuantitySold, d.Revenue)).ToList();
     }
 }
+

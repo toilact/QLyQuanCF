@@ -11,3 +11,4 @@ public interface IAuthService
     Task<bool> UpdateUserAsync(User user, string? newPlainPassword = null);
     Task<bool> ToggleUserStatusAsync(int userId);
 }
+

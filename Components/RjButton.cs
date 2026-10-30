@@ -15,6 +15,7 @@ public class RjButton : Button
     private bool _isHovered = false;
 
     [Category("Custom Properties")]
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public int BorderSize
     {
         get => _borderSize;
@@ -22,6 +23,7 @@ public class RjButton : Button
     }
 
     [Category("Custom Properties")]
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public int BorderRadius
     {
         get => _borderRadius;
@@ -29,6 +31,7 @@ public class RjButton : Button
     }
 
     [Category("Custom Properties")]
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public Color BorderColor
     {
         get => _borderColor;
@@ -36,6 +39,7 @@ public class RjButton : Button
     }
 
     [Category("Custom Properties")]
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public Color HoverBackColor
     {
         get => _hoverBgColor;
@@ -111,3 +115,4 @@ public class RjButton : Button
         TextRenderer.DrawText(g, Text, Font, rectSurface, textCol, textFlags);
     }
 }
+

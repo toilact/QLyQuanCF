@@ -24,3 +24,4 @@ public class Table
 
     public virtual ICollection<Bill> Bills { get; set; } = new List<Bill>();
 }
+

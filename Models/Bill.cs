@@ -37,3 +37,4 @@ public class Bill
 
     public virtual ICollection<BillDetail> Details { get; set; } = new List<BillDetail>();
 }
+

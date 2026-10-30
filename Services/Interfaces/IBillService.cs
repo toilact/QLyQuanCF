@@ -10,3 +10,4 @@ public interface IBillService
     Task<bool> RemoveDetailAsync(int billDetailId);
     Task<Bill> PayBillAsync(int billId, int discountPercent);
 }
+

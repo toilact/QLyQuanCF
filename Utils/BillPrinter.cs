@@ -165,3 +165,4 @@ public class BillPrinter
         g.DrawString(_greeting, fontSmall, brush, new RectangleF(startX, y, width, 18), centerFormat);
     }
 }
+

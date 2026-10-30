@@ -33,3 +33,4 @@ public class Product
 
     public virtual ICollection<BillDetail> BillDetails { get; set; } = new List<BillDetail>();
 }
+

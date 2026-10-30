@@ -59,3 +59,4 @@
 4. **UI Craft Chống AI Slop:**
    - Bộ màu cà phê ấm áp Espresso (`#3D2817`, `#C68B59`, `#F7F5F2`), font chữ đồng nhất `Segoe UI`.
    - Các bảng DataGridView và nút bấm đều được thiết kế phẳng bo tròn góc hiện đại, không dùng giao diện mặc định thô cứng.
+

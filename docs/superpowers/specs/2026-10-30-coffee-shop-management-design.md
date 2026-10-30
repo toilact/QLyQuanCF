@@ -1,8 +1,8 @@
 # Tài liệu Thiết kế Hệ thống Quản lý Quán Cà phê (Coffee Shop Management System)
 
 - **Môn học:** Lập trình trên hệ điều hành Windows
-- **Nền tảng:** C# .NET 8.0 Windows Forms
-- **ORM:** Entity Framework Core 8 (Code-First Migrations)
+- **Nền tảng:** C# .NET 10.0 Windows Forms
+- **ORM:** Entity Framework Core (Code-First Migrations)
 - **Hệ quản trị CSDL:** Microsoft SQL Server (LocalDB / SQL Express)
 - **Kiến trúc:** Single Project phân chia thư mục nghiệp vụ (Models, Data, Services, Forms, Utils)
 - **Ngày lập:** 2026-10-30

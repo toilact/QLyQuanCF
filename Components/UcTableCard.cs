@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -11,6 +12,7 @@ public class UcTableCard : UserControl
     private bool _isSelected = false;
     private bool _isHovered = false;
 
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public Table? TableData
     {
         get => _table;
@@ -21,6 +23,7 @@ public class UcTableCard : UserControl
         }
     }
 
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public bool IsSelected
     {
         get => _isSelected;
@@ -104,3 +107,4 @@ public class UcTableCard : UserControl
         }
     }
 }
+

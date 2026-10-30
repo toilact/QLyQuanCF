@@ -8,3 +8,4 @@ public interface IReportService
     Task<(decimal TotalRevenue, int TotalBills, decimal AverageBill)> GetSummaryAsync(DateTime fromDate, DateTime toDate);
     Task<List<(string ProductName, int QuantitySold, decimal Revenue)>> GetTopSellingProductsAsync(DateTime fromDate, DateTime toDate, int top = 10);
 }
+

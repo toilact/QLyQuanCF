@@ -14,3 +14,4 @@ public interface ITableService
     Task<bool> SwitchTableAsync(int fromTableId, int toTableId);
     Task<bool> MergeTableAsync(int sourceTableId, int targetTableId);
 }
+
