@@ -1,227 +1,73 @@
-using System.Drawing;
 using System.Windows.Forms;
-using CoffeeShopManagement.Components;
 using CoffeeShopManagement.Models;
 using CoffeeShopManagement.Services.Interfaces;
 using CoffeeShopManagement.Utils;
 
 namespace CoffeeShopManagement.Forms;
 
-public class FrmPayment : Form
+public partial class FrmPayment : Form
 {
-    private readonly IBillService _billService;
-    private readonly Bill _bill;
+    private readonly IBillService? _billService;
+    private readonly Bill? _bill;
 
-    private NumericUpDown _nudDiscount = null!;
-    private Label _lblSubTotal = null!;
-    private Label _lblDiscountVal = null!;
-    private Label _lblFinalTotal = null!;
-    private CheckBox _chkPrint = null!;
-    private CheckBox _chkPreview = null!;
-    private RjButton _btnPay = null!;
+    public FrmPayment()
+    {
+        InitializeComponent();
+    }
 
-    public FrmPayment(IBillService billService, Bill bill)
+    public FrmPayment(IBillService billService, Bill bill) : this()
     {
         _billService = billService;
         _bill = bill;
 
-        InitializeComponent();
-        CalculateTotals();
-    }
-
-    private void InitializeComponent()
-    {
         Text = $"Thanh Toán - {_bill.Table?.Name ?? "Hóa đơn"}";
-        Size = new Size(520, 500);
-        StartPosition = FormStartPosition.CenterParent;
-        FormBorderStyle = FormBorderStyle.FixedDialog;
-        MaximizeBox = false;
-        MinimizeBox = false;
-        BackColor = UITheme.CanvasBg;
+        lblThongTinBanThuNgan.Text = $"Bàn: {_bill.Table?.Name ?? "Mang về"}  |  Thu ngân: {_bill.User?.FullName ?? "Staff"}";
 
-        var pnlCard = new Panel
+        nudGiamGia.Minimum = 0;
+        nudGiamGia.Maximum = 100;
+        nudGiamGia.Value = _bill.DiscountPercent;
+        nudGiamGia.ValueChanged += (_, _) => CalculateTotals();
+
+        btnXacNhanThanhToan.Click += BtnPay_Click;
+        btnQuayLai.Click += (_, _) =>
         {
-            Location = new Point(24, 20),
-            Size = new Size(455, 415),
-            BackColor = UITheme.Surface,
-            BorderStyle = BorderStyle.FixedSingle,
-            Padding = new Padding(24)
+            DialogResult = DialogResult.Cancel;
+            Close();
         };
-        Controls.Add(pnlCard);
 
-        var lblTitle = new Label
-        {
-            Text = "XÁC NHẬN THANH TOÁN",
-            Font = UITheme.FontDisplay,
-            ForeColor = UITheme.Primary,
-            Location = new Point(20, 15),
-            Size = new Size(415, 30),
-            TextAlign = ContentAlignment.MiddleCenter
-        };
-        pnlCard.Controls.Add(lblTitle);
-
-        var lblSub = new Label
-        {
-            Text = $"Bàn: {_bill.Table?.Name}  |  Thu ngân: {_bill.User?.FullName ?? "Staff"}",
-            Font = UITheme.FontRegular,
-            ForeColor = UITheme.TextMuted,
-            Location = new Point(20, 48),
-            Size = new Size(415, 20),
-            TextAlign = ContentAlignment.MiddleCenter
-        };
-        pnlCard.Controls.Add(lblSub);
-
-        // Divider
-        var pnlDiv = new Panel
-        {
-            Location = new Point(20, 75),
-            Size = new Size(415, 1),
-            BackColor = UITheme.Border
-        };
-        pnlCard.Controls.Add(pnlDiv);
-
-        // 1. Tạm tính
-        var lbl1 = new Label { Text = "Tổng tiền món:", Font = UITheme.FontRegular, Location = new Point(20, 95), AutoSize = true };
-        pnlCard.Controls.Add(lbl1);
-
-        _lblSubTotal = new Label
-        {
-            Text = "0 đ",
-            Font = UITheme.FontBold,
-            Location = new Point(220, 95),
-            Size = new Size(215, 20),
-            TextAlign = ContentAlignment.MiddleRight
-        };
-        pnlCard.Controls.Add(_lblSubTotal);
-
-        // 2. Giảm giá
-        var lbl2 = new Label { Text = "Giảm giá (%):", Font = UITheme.FontRegular, Location = new Point(20, 135), AutoSize = true };
-        pnlCard.Controls.Add(lbl2);
-
-        _nudDiscount = new NumericUpDown
-        {
-            Location = new Point(130, 132),
-            Size = new Size(70, 28),
-            Font = UITheme.FontBold,
-            Minimum = 0,
-            Maximum = 100,
-            Value = _bill.DiscountPercent
-        };
-        _nudDiscount.ValueChanged += (_, _) => CalculateTotals();
-        pnlCard.Controls.Add(_nudDiscount);
-
-        _lblDiscountVal = new Label
-        {
-            Text = "-0 đ",
-            Font = UITheme.FontRegular,
-            ForeColor = UITheme.Danger,
-            Location = new Point(220, 135),
-            Size = new Size(215, 20),
-            TextAlign = ContentAlignment.MiddleRight
-        };
-        pnlCard.Controls.Add(_lblDiscountVal);
-
-        // Divider 2
-        var pnlDiv2 = new Panel
-        {
-            Location = new Point(20, 175),
-            Size = new Size(415, 1),
-            BackColor = UITheme.Border
-        };
-        pnlCard.Controls.Add(pnlDiv2);
-
-        // 3. Khách cần trả
-        var lbl3 = new Label { Text = "THANH TOÁN:", Font = UITheme.FontHeader, ForeColor = UITheme.Primary, Location = new Point(20, 195), AutoSize = true };
-        pnlCard.Controls.Add(lbl3);
-
-        _lblFinalTotal = new Label
-        {
-            Text = "0 đ",
-            Font = new Font("Segoe UI", 17f, FontStyle.Bold),
-            ForeColor = UITheme.Danger,
-            Location = new Point(170, 186),
-            Size = new Size(265, 35),
-            TextAlign = ContentAlignment.MiddleRight
-        };
-        pnlCard.Controls.Add(_lblFinalTotal);
-
-        // In hóa đơn options
-        _chkPrint = new CheckBox
-        {
-            Text = "In hóa đơn thanh toán",
-            Font = UITheme.FontRegular,
-            Location = new Point(25, 250),
-            Size = new Size(200, 24),
-            Checked = true
-        };
-        pnlCard.Controls.Add(_chkPrint);
-
-        _chkPreview = new CheckBox
-        {
-            Text = "Xem trước bản in (Preview)",
-            Font = UITheme.FontRegular,
-            Location = new Point(235, 250),
-            Size = new Size(200, 24),
-            Checked = true
-        };
-        pnlCard.Controls.Add(_chkPreview);
-
-        // Action Buttons
-        _btnPay = new RjButton
-        {
-            Text = "HOÀN TẤT THANH TOÁN",
-            Location = new Point(205, 320),
-            Size = new Size(230, 46),
-            BackColor = UITheme.Primary,
-            HoverBackColor = UITheme.PrimaryHover,
-            Font = UITheme.FontBold,
-            BorderRadius = 6
-        };
-        _btnPay.Click += BtnPay_Click;
-        pnlCard.Controls.Add(_btnPay);
-
-        var btnCancel = new RjButton
-        {
-            Text = "QUAY LẠI",
-            Location = new Point(65, 320),
-            Size = new Size(130, 46),
-            BackColor = Color.White,
-            HoverBackColor = ColorTranslator.FromHtml("#F0EBE5"),
-            ForeColor = UITheme.TextDark,
-            BorderColor = UITheme.Border,
-            BorderSize = 1,
-            BorderRadius = 6
-        };
-        btnCancel.Click += (_, _) => { DialogResult = DialogResult.Cancel; Close(); };
-        pnlCard.Controls.Add(btnCancel);
+        CalculateTotals();
     }
 
     private void CalculateTotals()
     {
+        if (_bill == null) return;
+
         decimal subTotal = _bill.Details.Sum(d => d.Quantity * d.UnitPrice);
-        int discountPercent = (int)_nudDiscount.Value;
+        int discountPercent = (int)nudGiamGia.Value;
         decimal discountVal = subTotal * discountPercent / 100m;
         decimal finalTotal = subTotal - discountVal;
 
-        _lblSubTotal.Text = $"{subTotal:N0} đ";
-        _lblDiscountVal.Text = $"-{discountVal:N0} đ";
-        _lblFinalTotal.Text = $"{finalTotal:N0} đ";
+        lblTongTienMon.Text = $"{subTotal:N0} đ";
+        lblTienGiam.Text = $"-{discountVal:N0} đ";
+        lblTongThanhToan.Text = $"{finalTotal:N0} đ";
     }
 
     private async void BtnPay_Click(object? sender, EventArgs e)
     {
-        _btnPay.Enabled = false;
-        _btnPay.Text = "Đang xử lý...";
+        if (_billService == null || _bill == null) return;
+
+        btnXacNhanThanhToan.Enabled = false;
+        btnXacNhanThanhToan.Text = "Đang xử lý...";
 
         try
         {
-            int discount = (int)_nudDiscount.Value;
+            int discount = (int)nudGiamGia.Value;
             var paidBill = await _billService.PayBillAsync(_bill.Id, discount);
 
-            if (_chkPrint.Checked)
+            if (chkInHoaDon.Checked)
             {
                 var printer = new BillPrinter(paidBill);
-                printer.Print(showPreview: _chkPreview.Checked);
+                printer.Print(showPreview: chkXemTruocIn.Checked);
             }
 
             DialogResult = DialogResult.OK;
@@ -230,9 +76,8 @@ public class FrmPayment : Form
         catch (Exception ex)
         {
             MessageBox.Show($"Lỗi thanh toán: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            _btnPay.Enabled = true;
-            _btnPay.Text = "HOÀN TẤT THANH TOÁN";
+            btnXacNhanThanhToan.Enabled = true;
+            btnXacNhanThanhToan.Text = "HOÀN TẤT THANH TOÁN";
         }
     }
 }
-
