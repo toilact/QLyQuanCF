@@ -34,8 +34,9 @@ public class FrmReport : Form
 
     private void InitializeComponent()
     {
-        Text = "Báo Cáo Doanh Thu & Thống Kê Bán Hàng";
-        Size = new Size(1100, 720);
+        Text = "Báo Cáo Doanh Thu và Thống Kê Bán Hàng";
+        Size = new Size(1220, 780);
+        MinimumSize = new Size(1050, 680);
         StartPosition = FormStartPosition.CenterParent;
         BackColor = UITheme.CanvasBg;
 
@@ -43,138 +44,237 @@ public class FrmReport : Form
         var pnlFilter = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 70,
+            Height = 65,
             BackColor = UITheme.Surface,
             BorderStyle = BorderStyle.FixedSingle,
-            Padding = new Padding(16, 12, 16, 12)
+            Padding = new Padding(20, 12, 20, 12)
         };
         Controls.Add(pnlFilter);
 
-        var lblFrom = new Label { Text = "Từ ngày:", Font = UITheme.FontBold, Location = new Point(16, 22), AutoSize = true };
-        _dtpFrom = new DateTimePicker { Location = new Point(85, 18), Size = new Size(130, 28), Format = DateTimePickerFormat.Short, Font = UITheme.FontRegular };
-        pnlFilter.Controls.Add(lblFrom);
-        pnlFilter.Controls.Add(_dtpFrom);
+        // Left filter elements
+        var flpFilterLeft = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Left,
+            AutoSize = true,
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = false,
+            BackColor = Color.Transparent
+        };
+        pnlFilter.Controls.Add(flpFilterLeft);
 
-        var lblTo = new Label { Text = "Đến ngày:", Font = UITheme.FontBold, Location = new Point(230, 22), AutoSize = true };
-        _dtpTo = new DateTimePicker { Location = new Point(310, 18), Size = new Size(130, 28), Format = DateTimePickerFormat.Short, Font = UITheme.FontRegular };
-        pnlFilter.Controls.Add(lblTo);
-        pnlFilter.Controls.Add(_dtpTo);
+        var lblFrom = new Label { Text = "Từ ngày:", Font = UITheme.FontBold, Margin = new Padding(0, 8, 4, 0), AutoSize = true };
+        _dtpFrom = new DateTimePicker
+        {
+            Size = new Size(130, 30),
+            Format = DateTimePickerFormat.Custom,
+            CustomFormat = "dd/MM/yyyy",
+            Font = UITheme.FontRegular,
+            Margin = new Padding(0, 4, 16, 0)
+        };
+        flpFilterLeft.Controls.Add(lblFrom);
+        flpFilterLeft.Controls.Add(_dtpFrom);
+
+        var lblTo = new Label { Text = "Đến ngày:", Font = UITheme.FontBold, Margin = new Padding(0, 8, 4, 0), AutoSize = true };
+        _dtpTo = new DateTimePicker
+        {
+            Size = new Size(130, 30),
+            Format = DateTimePickerFormat.Custom,
+            CustomFormat = "dd/MM/yyyy",
+            Font = UITheme.FontRegular,
+            Margin = new Padding(0, 4, 16, 0)
+        };
+        flpFilterLeft.Controls.Add(lblTo);
+        flpFilterLeft.Controls.Add(_dtpTo);
 
         var btnFilter = new RjButton
         {
             Text = "THỐNG KÊ",
-            Location = new Point(460, 15),
-            Size = new Size(120, 36),
+            Size = new Size(115, 34),
             BackColor = UITheme.Primary,
-            BorderRadius = 6
+            BorderRadius = 6,
+            Margin = new Padding(0, 2, 10, 0)
         };
         btnFilter.Click += async (_, _) => await LoadReportDataAsync();
-        pnlFilter.Controls.Add(btnFilter);
+        flpFilterLeft.Controls.Add(btnFilter);
 
-        // Quick Filters
-        var btnToday = new Button { Text = "Hôm nay", Location = new Point(590, 17), Size = new Size(80, 32), FlatStyle = FlatStyle.Flat, BackColor = UITheme.CanvasBg };
+        var btnToday = new RjButton
+        {
+            Text = "Hôm nay",
+            Size = new Size(95, 34),
+            BackColor = UITheme.CanvasBg,
+            HoverBackColor = ColorTranslator.FromHtml("#EBE2D8"),
+            ForeColor = UITheme.TextDark,
+            BorderColor = UITheme.Border,
+            BorderSize = 1,
+            BorderRadius = 6,
+            Margin = new Padding(0, 2, 8, 0)
+        };
         btnToday.Click += async (_, _) => { _dtpFrom.Value = DateTime.Today; _dtpTo.Value = DateTime.Today; await LoadReportDataAsync(); };
-        pnlFilter.Controls.Add(btnToday);
+        flpFilterLeft.Controls.Add(btnToday);
 
-        var btnThisMonth = new Button { Text = "Tháng này", Location = new Point(680, 17), Size = new Size(85, 32), FlatStyle = FlatStyle.Flat, BackColor = UITheme.CanvasBg };
+        var btnThisMonth = new RjButton
+        {
+            Text = "Tháng này",
+            Size = new Size(100, 34),
+            BackColor = UITheme.CanvasBg,
+            HoverBackColor = ColorTranslator.FromHtml("#EBE2D8"),
+            ForeColor = UITheme.TextDark,
+            BorderColor = UITheme.Border,
+            BorderSize = 1,
+            BorderRadius = 6,
+            Margin = new Padding(0, 2, 0, 0)
+        };
         btnThisMonth.Click += async (_, _) =>
         {
             _dtpFrom.Value = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             _dtpTo.Value = DateTime.Today;
             await LoadReportDataAsync();
         };
-        pnlFilter.Controls.Add(btnThisMonth);
+        flpFilterLeft.Controls.Add(btnThisMonth);
 
-        // Export Excel Button
+        // Right export button
         _btnExportExcel = new RjButton
         {
             Text = "XUẤT BÁO CÁO EXCEL",
-            Anchor = AnchorStyles.Top | AnchorStyles.Right,
-            Location = new Point(pnlFilter.Width - 220, 14),
-            Size = new Size(200, 38),
-            BackColor = ColorTranslator.FromHtml("#1D6F42"), // Excel Dark Green
+            Dock = DockStyle.Right,
+            Width = 210,
+            BackColor = ColorTranslator.FromHtml("#1D6F42"),
             HoverBackColor = ColorTranslator.FromHtml("#268752"),
+            Font = UITheme.FontBold,
             BorderRadius = 6
         };
         _btnExportExcel.Click += BtnExportExcel_Click;
         pnlFilter.Controls.Add(_btnExportExcel);
 
-        // 2. KPI SUMMARY CARDS
-        var pnlCards = new Panel
+        // 2. KPI SUMMARY CARDS (Dock = Top)
+        var pnlKpiContainer = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 110,
+            Height = 115,
             BackColor = UITheme.CanvasBg,
-            Padding = new Padding(16, 12, 16, 8)
+            Padding = new Padding(20, 12, 20, 10)
         };
-        Controls.Add(pnlCards);
+        Controls.Add(pnlKpiContainer);
 
-        Panel CreateKpiCard(string title, out Label lblVal, Color valColor, int x)
+        var tblKpi = new TableLayoutPanel
         {
-            var pnl = new Panel
+            Dock = DockStyle.Fill,
+            ColumnCount = 3,
+            RowCount = 1,
+            BackColor = Color.Transparent
+        };
+        tblKpi.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
+        tblKpi.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
+        tblKpi.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.34F));
+        pnlKpiContainer.Controls.Add(tblKpi);
+
+        Panel CreateKpiCard(string title, out Label lblVal, Color valColor)
+        {
+            var card = new Panel
             {
-                Location = new Point(x, 12),
-                Size = new Size(330, 85),
+                Dock = DockStyle.Fill,
                 BackColor = UITheme.Surface,
                 BorderStyle = BorderStyle.FixedSingle,
-                Padding = new Padding(16)
+                Padding = new Padding(16, 12, 16, 12),
+                Margin = new Padding(6)
             };
 
-            var lblT = new Label { Text = title, Font = UITheme.FontSmall, ForeColor = UITheme.TextMuted, Location = new Point(14, 12), AutoSize = true };
-            lblVal = new Label { Text = "0", Font = new Font("Segoe UI", 16f, FontStyle.Bold), ForeColor = valColor, Location = new Point(14, 35), Size = new Size(300, 35) };
-            pnl.Controls.Add(lblT);
-            pnl.Controls.Add(lblVal);
-            return pnl;
+            var lblT = new Label
+            {
+                Text = title,
+                Font = UITheme.FontSmall,
+                ForeColor = UITheme.TextMuted,
+                Dock = DockStyle.Top,
+                Height = 20
+            };
+            lblVal = new Label
+            {
+                Text = "0 đ",
+                Font = new Font("Segoe UI", 16f, FontStyle.Bold),
+                ForeColor = valColor,
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            card.Controls.Add(lblVal);
+            card.Controls.Add(lblT);
+            return card;
         }
 
-        pnlCards.Controls.Add(CreateKpiCard("TỔNG DOANH THU", out _lblTotalRevenue, UITheme.Danger, 16));
-        pnlCards.Controls.Add(CreateKpiCard("TỔNG SỐ HÓA ĐƠN ĐÃ BÁN", out _lblTotalBills, UITheme.Primary, 370));
-        pnlCards.Controls.Add(CreateKpiCard("GIÁ TRỊ ĐƠN TRUNG BÌNH", out _lblAverageBill, UITheme.Accent, 720));
+        tblKpi.Controls.Add(CreateKpiCard("TỔNG DOANH THU", out _lblTotalRevenue, UITheme.Danger), 0, 0);
+        tblKpi.Controls.Add(CreateKpiCard("TỔNG SỐ HÓA ĐƠN ĐÃ BÁN", out _lblTotalBills, UITheme.Primary), 1, 0);
+        tblKpi.Controls.Add(CreateKpiCard("GIÁ TRỊ ĐƠN TRUNG BÌNH", out _lblAverageBill, UITheme.Accent), 2, 0);
 
-        // 3. TABS DATA
+        // 3. MAIN DATA TABS CONTAINER (Dock = Fill)
+        var pnlTabsContainer = new Panel
+        {
+            Dock = DockStyle.Fill,
+            BackColor = UITheme.CanvasBg,
+            Padding = new Padding(20, 0, 20, 20)
+        };
+        Controls.Add(pnlTabsContainer);
+        pnlTabsContainer.BringToFront();
+
         var tabs = new TabControl
         {
             Dock = DockStyle.Fill,
             Font = UITheme.FontBold,
-            Padding = new Point(16, 8)
+            Padding = new Point(20, 8)
         };
-        Controls.Add(tabs);
+        pnlTabsContainer.Controls.Add(tabs);
 
-        var tabBills = new TabPage("  Danh Sách Hóa Đơn Thanh Toán  ") { BackColor = UITheme.CanvasBg, Padding = new Padding(8) };
-        _dgvBills = new DataGridView { Dock = DockStyle.Fill };
+        // Tab 1: Bills Grid
+        var tabBills = new TabPage("  Danh Sách Hóa Đơn Thanh Toán  ") { BackColor = UITheme.CanvasBg, Padding = new Padding(12) };
+        _dgvBills = new DataGridView
+        {
+            Dock = DockStyle.Fill,
+            AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+        };
         UITheme.ApplyModernGridStyle(_dgvBills);
-        _dgvBills.Columns.Add("Id", "Mã HĐ");
-        _dgvBills.Columns["Id"].Width = 90;
-        _dgvBills.Columns.Add("Table", "Bàn");
-        _dgvBills.Columns["Table"].Width = 140;
-        _dgvBills.Columns.Add("User", "Thu Ngân");
-        _dgvBills.Columns["User"].Width = 160;
-        _dgvBills.Columns.Add("CheckIn", "Giờ Vào");
-        _dgvBills.Columns["CheckIn"].Width = 160;
-        _dgvBills.Columns.Add("CheckOut", "Giờ Thanh Toán");
-        _dgvBills.Columns["CheckOut"].Width = 160;
-        _dgvBills.Columns.Add("Discount", "Giảm (%)");
-        _dgvBills.Columns["Discount"].Width = 90;
-        _dgvBills.Columns.Add("Total", "Thành Tiền");
-        _dgvBills.Columns["Total"].Width = 140;
+
+        var colId = new DataGridViewTextBoxColumn { Name = "Id", HeaderText = "Mã HĐ", FillWeight = 11, DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter } };
+        _dgvBills.Columns.Add(colId);
+
+        _dgvBills.Columns.Add(new DataGridViewTextBoxColumn { Name = "Table", HeaderText = "Bàn", FillWeight = 15 });
+        _dgvBills.Columns.Add(new DataGridViewTextBoxColumn { Name = "User", HeaderText = "Thu Ngân", FillWeight = 18 });
+
+        var colIn = new DataGridViewTextBoxColumn { Name = "CheckIn", HeaderText = "Giờ Vào", FillWeight = 18, DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter } };
+        _dgvBills.Columns.Add(colIn);
+
+        var colOut = new DataGridViewTextBoxColumn { Name = "CheckOut", HeaderText = "Giờ Thanh Toán", FillWeight = 18, DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter } };
+        _dgvBills.Columns.Add(colOut);
+
+        var colDiscount = new DataGridViewTextBoxColumn { Name = "Discount", HeaderText = "Giảm (%)", FillWeight = 10, DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter } };
+        _dgvBills.Columns.Add(colDiscount);
+
+        var colTotal = new DataGridViewTextBoxColumn { Name = "Total", HeaderText = "Thành Tiền", FillWeight = 20, DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleRight, Font = UITheme.FontBold } };
+        _dgvBills.Columns.Add(colTotal);
+
         tabBills.Controls.Add(_dgvBills);
         tabs.TabPages.Add(tabBills);
 
-        var tabTop = new TabPage("  Top Sản Phẩm Bán Chạy  ") { BackColor = UITheme.CanvasBg, Padding = new Padding(8) };
-        _dgvTopProducts = new DataGridView { Dock = DockStyle.Fill };
+        // Tab 2: Top Products Grid
+        var tabTop = new TabPage("  Top Sản Phẩm Bán Chạy  ") { BackColor = UITheme.CanvasBg, Padding = new Padding(12) };
+        _dgvTopProducts = new DataGridView
+        {
+            Dock = DockStyle.Fill,
+            AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+        };
         UITheme.ApplyModernGridStyle(_dgvTopProducts);
-        _dgvTopProducts.Columns.Add("Rank", "Hạng");
-        _dgvTopProducts.Columns["Rank"].Width = 80;
-        _dgvTopProducts.Columns.Add("Name", "Tên Món");
-        _dgvTopProducts.Columns["Name"].Width = 300;
-        _dgvTopProducts.Columns.Add("Qty", "Số Lượng Bán");
-        _dgvTopProducts.Columns["Qty"].Width = 150;
-        _dgvTopProducts.Columns.Add("Revenue", "Doanh Thu");
-        _dgvTopProducts.Columns["Revenue"].Width = 180;
+
+        var colRank = new DataGridViewTextBoxColumn { Name = "Rank", HeaderText = "Xếp Hạng", FillWeight = 12, DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter, Font = UITheme.FontBold } };
+        _dgvTopProducts.Columns.Add(colRank);
+
+        _dgvTopProducts.Columns.Add(new DataGridViewTextBoxColumn { Name = "Name", HeaderText = "Tên Sản Phẩm", FillWeight = 48 });
+
+        var colQty = new DataGridViewTextBoxColumn { Name = "Qty", HeaderText = "Số Lượng Bán", FillWeight = 20, DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter } };
+        _dgvTopProducts.Columns.Add(colQty);
+
+        var colRev = new DataGridViewTextBoxColumn { Name = "Revenue", HeaderText = "Doanh Thu Món", FillWeight = 20, DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleRight, Font = UITheme.FontBold } };
+        _dgvTopProducts.Columns.Add(colRev);
+
         tabTop.Controls.Add(_dgvTopProducts);
         tabs.TabPages.Add(tabTop);
     }
-
 
     private async Task LoadReportDataAsync()
     {

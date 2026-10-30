@@ -43,8 +43,9 @@ public class FrmCategoryProduct : Form
 
     private void InitializeComponent()
     {
-        Text = "Quản Lý Thực Đơn & Danh Mục Món";
-        Size = new Size(1000, 680);
+        Text = "Quản Lý Thực Đơn và Danh Mục Món";
+        Size = new Size(1150, 720);
+        MinimumSize = new Size(1000, 650);
         StartPosition = FormStartPosition.CenterParent;
         BackColor = UITheme.CanvasBg;
 
@@ -52,7 +53,7 @@ public class FrmCategoryProduct : Form
         {
             Dock = DockStyle.Fill,
             Font = UITheme.FontBold,
-            Padding = new Point(16, 8)
+            Padding = new Point(20, 10)
         };
         Controls.Add(_tabMain);
 
@@ -68,81 +69,161 @@ public class FrmCategoryProduct : Form
 
     private void BuildProductTab(TabPage page)
     {
-        var pnlLeft = new Panel
+        var split = new SplitContainer
         {
-            Dock = DockStyle.Left,
-            Width = 360,
-            BackColor = UITheme.Surface,
-            BorderStyle = BorderStyle.FixedSingle,
-            Padding = new Padding(16)
+            Dock = DockStyle.Fill,
+            FixedPanel = FixedPanel.Panel1,
+            SplitterDistance = 380,
+            IsSplitterFixed = true,
+            BackColor = UITheme.Border
         };
-        page.Controls.Add(pnlLeft);
+        page.Controls.Add(split);
 
-        var lblTitle = new Label { Text = "THÔNG TIN MÓN", Font = UITheme.FontHeader, ForeColor = UITheme.Primary, Location = new Point(16, 16), AutoSize = true };
+        // Panel 1: Left Form
+        var pnlLeft = split.Panel1;
+        pnlLeft.BackColor = UITheme.Surface;
+        pnlLeft.Padding = new Padding(24, 20, 24, 20);
+
+        var lblTitle = new Label
+        {
+            Text = "THÔNG TIN MÓN ĂN",
+            Font = UITheme.FontHeader,
+            ForeColor = UITheme.Primary,
+            Dock = DockStyle.Top,
+            Height = 35
+        };
         pnlLeft.Controls.Add(lblTitle);
 
-        int y = 55;
-        void AddField(string label, Control ctrl)
+        var flpInputs = new FlowLayoutPanel
         {
-            var lbl = new Label { Text = label, Font = UITheme.FontBold, ForeColor = UITheme.TextDark, Location = new Point(16, y), AutoSize = true };
-            ctrl.Location = new Point(16, y + 22);
-            ctrl.Width = 320;
-            pnlLeft.Controls.Add(lbl);
-            pnlLeft.Controls.Add(ctrl);
-            y += 62;
+            Dock = DockStyle.Fill,
+            FlowDirection = FlowDirection.TopDown,
+            WrapContents = false,
+            AutoScroll = true
+        };
+        pnlLeft.Controls.Add(flpInputs);
+        flpInputs.BringToFront();
+
+        void AddFormField(string label, Control ctrl)
+        {
+            var lbl = new Label
+            {
+                Text = label,
+                Font = UITheme.FontBold,
+                ForeColor = UITheme.TextDark,
+                Size = new Size(330, 20),
+                Margin = new Padding(0, 8, 0, 4)
+            };
+            ctrl.Size = new Size(330, 32);
+            ctrl.Margin = new Padding(0, 0, 0, 12);
+
+            flpInputs.Controls.Add(lbl);
+            flpInputs.Controls.Add(ctrl);
         }
 
         _cbProdCategory = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Font = UITheme.FontRegular };
-        AddField("Danh mục:", _cbProdCategory);
+        AddFormField("Danh mục món:", _cbProdCategory);
 
         _txtProdName = new TextBox { Font = UITheme.FontRegular, BorderStyle = BorderStyle.FixedSingle };
-        AddField("Tên món:", _txtProdName);
+        AddFormField("Tên món ăn / thức uống:", _txtProdName);
 
         _nudProdPrice = new NumericUpDown { Font = UITheme.FontRegular, Minimum = 0, Maximum = 10000000, Increment = 5000 };
-        AddField("Đơn giá (VNĐ):", _nudProdPrice);
+        AddFormField("Đơn giá (VNĐ):", _nudProdPrice);
 
         _txtProdUnit = new TextBox { Font = UITheme.FontRegular, Text = "Ly", BorderStyle = BorderStyle.FixedSingle };
-        AddField("Đơn vị tính:", _txtProdUnit);
+        AddFormField("Đơn vị tính (Ly, Tách, Đĩa,...):", _txtProdUnit);
 
-        _chkProdActive = new CheckBox { Text = "Đang kinh doanh (phục vụ)", Checked = true, Font = UITheme.FontRegular, Location = new Point(16, y), AutoSize = true };
-        pnlLeft.Controls.Add(_chkProdActive);
-        y += 40;
+        _chkProdActive = new CheckBox
+        {
+            Text = "Đang phục vụ (Có sẵn trong menu)",
+            Checked = true,
+            Font = UITheme.FontRegular,
+            Size = new Size(330, 28),
+            Margin = new Padding(0, 4, 0, 16)
+        };
+        flpInputs.Controls.Add(_chkProdActive);
 
-        // Action buttons
-        _btnProdAdd = new RjButton { Text = "Thêm mới", Location = new Point(16, y), Size = new Size(95, 38), BackColor = UITheme.Primary, BorderRadius = 6 };
+        // Buttons Grid
+        var tblBtns = new TableLayoutPanel
+        {
+            Size = new Size(330, 44),
+            ColumnCount = 3,
+            RowCount = 1,
+            Margin = new Padding(0, 0, 0, 10)
+        };
+        tblBtns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3F));
+        tblBtns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3F));
+        tblBtns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3F));
+        flpInputs.Controls.Add(tblBtns);
+
+        _btnProdAdd = new RjButton { Text = "Thêm mới", Dock = DockStyle.Fill, BackColor = UITheme.Primary, BorderRadius = 6 };
         _btnProdAdd.Click += BtnProdAdd_Click;
-        pnlLeft.Controls.Add(_btnProdAdd);
+        tblBtns.Controls.Add(_btnProdAdd, 0, 0);
 
-        _btnProdUpdate = new RjButton { Text = "Cập nhật", Location = new Point(120, y), Size = new Size(100, 38), BackColor = UITheme.Accent, BorderRadius = 6, Enabled = false };
+        _btnProdUpdate = new RjButton { Text = "Cập nhật", Dock = DockStyle.Fill, BackColor = UITheme.Accent, BorderRadius = 6, Enabled = false };
         _btnProdUpdate.Click += BtnProdUpdate_Click;
-        pnlLeft.Controls.Add(_btnProdUpdate);
+        tblBtns.Controls.Add(_btnProdUpdate, 1, 0);
 
-        _btnProdDelete = new RjButton { Text = "Xóa món", Location = new Point(230, y), Size = new Size(105, 38), BackColor = UITheme.Danger, BorderRadius = 6, Enabled = false };
+        _btnProdDelete = new RjButton { Text = "Xóa món", Dock = DockStyle.Fill, BackColor = UITheme.Danger, BorderRadius = 6, Enabled = false };
         _btnProdDelete.Click += BtnProdDelete_Click;
-        pnlLeft.Controls.Add(_btnProdDelete);
+        tblBtns.Controls.Add(_btnProdDelete, 2, 0);
 
-        var btnProdClear = new RjButton { Text = "Làm mới form", Location = new Point(16, y + 48), Size = new Size(320, 32), BackColor = Color.White, ForeColor = UITheme.TextDark, BorderColor = UITheme.Border, BorderSize = 1, BorderRadius = 6 };
-        btnProdClear.Click += (_, _) => ClearProdForm();
-        pnlLeft.Controls.Add(btnProdClear);
+        var btnClear = new RjButton
+        {
+            Text = "Làm mới Form",
+            Size = new Size(330, 38),
+            BackColor = Color.White,
+            ForeColor = UITheme.TextDark,
+            BorderColor = UITheme.Border,
+            BorderSize = 1,
+            BorderRadius = 6,
+            Margin = new Padding(0, 0, 0, 0)
+        };
+        btnClear.Click += (_, _) => ClearProdForm();
+        flpInputs.Controls.Add(btnClear);
 
-        // Right Grid
-        var pnlRight = new Panel { Dock = DockStyle.Fill, Padding = new Padding(12), BackColor = UITheme.CanvasBg };
-        page.Controls.Add(pnlRight);
+        // Panel 2: Right Grid
+        var pnlRight = split.Panel2;
+        pnlRight.BackColor = UITheme.CanvasBg;
+        pnlRight.Padding = new Padding(16);
 
-        _dgvProducts = new DataGridView { Dock = DockStyle.Fill };
+        _dgvProducts = new DataGridView
+        {
+            Dock = DockStyle.Fill,
+            AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+        };
         UITheme.ApplyModernGridStyle(_dgvProducts);
-        _dgvProducts.Columns.Add("Id", "ID");
-        _dgvProducts.Columns["Id"].Visible = false;
-        _dgvProducts.Columns.Add("Name", "Tên Món");
-        _dgvProducts.Columns["Name"].Width = 180;
-        _dgvProducts.Columns.Add("Category", "Danh Mục");
-        _dgvProducts.Columns["Category"].Width = 140;
-        _dgvProducts.Columns.Add("Price", "Đơn Giá");
-        _dgvProducts.Columns["Price"].Width = 100;
-        _dgvProducts.Columns.Add("Unit", "ĐVT");
-        _dgvProducts.Columns["Unit"].Width = 60;
-        _dgvProducts.Columns.Add("Status", "Trạng Thái");
-        _dgvProducts.Columns["Status"].Width = 100;
+
+        _dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { Name = "Id", Visible = false });
+        _dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { Name = "Name", HeaderText = "Tên Món", FillWeight = 34 });
+        _dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { Name = "Category", HeaderText = "Danh Mục", FillWeight = 26 });
+
+        var colPrice = new DataGridViewTextBoxColumn
+        {
+            Name = "Price",
+            HeaderText = "Đơn Giá",
+            FillWeight = 18,
+            DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleRight }
+        };
+        _dgvProducts.Columns.Add(colPrice);
+
+        var colUnit = new DataGridViewTextBoxColumn
+        {
+            Name = "Unit",
+            HeaderText = "ĐVT",
+            FillWeight = 10,
+            DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
+        };
+        _dgvProducts.Columns.Add(colUnit);
+
+        var colStatus = new DataGridViewTextBoxColumn
+        {
+            Name = "Status",
+            HeaderText = "Trạng Thái",
+            FillWeight = 12,
+            DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
+        };
+        _dgvProducts.Columns.Add(colStatus);
 
         _dgvProducts.SelectionChanged += DgvProducts_SelectionChanged;
         pnlRight.Controls.Add(_dgvProducts);
@@ -150,57 +231,111 @@ public class FrmCategoryProduct : Form
 
     private void BuildCategoryTab(TabPage page)
     {
-        var pnlLeft = new Panel
+        var split = new SplitContainer
         {
-            Dock = DockStyle.Left,
-            Width = 360,
-            BackColor = UITheme.Surface,
-            BorderStyle = BorderStyle.FixedSingle,
-            Padding = new Padding(16)
+            Dock = DockStyle.Fill,
+            FixedPanel = FixedPanel.Panel1,
+            SplitterDistance = 380,
+            IsSplitterFixed = true,
+            BackColor = UITheme.Border
         };
-        page.Controls.Add(pnlLeft);
+        page.Controls.Add(split);
 
-        var lblTitle = new Label { Text = "THÔNG TIN DANH MỤC", Font = UITheme.FontHeader, ForeColor = UITheme.Primary, Location = new Point(16, 16), AutoSize = true };
+        // Panel 1: Left Form
+        var pnlLeft = split.Panel1;
+        pnlLeft.BackColor = UITheme.Surface;
+        pnlLeft.Padding = new Padding(24, 20, 24, 20);
+
+        var lblTitle = new Label
+        {
+            Text = "THÔNG TIN DANH MỤC",
+            Font = UITheme.FontHeader,
+            ForeColor = UITheme.Primary,
+            Dock = DockStyle.Top,
+            Height = 35
+        };
         pnlLeft.Controls.Add(lblTitle);
 
-        int y = 60;
-        var lbl1 = new Label { Text = "Tên danh mục:", Font = UITheme.FontBold, Location = new Point(16, y), AutoSize = true };
-        _txtCatName = new TextBox { Location = new Point(16, y + 22), Width = 320, Font = UITheme.FontRegular, BorderStyle = BorderStyle.FixedSingle };
-        pnlLeft.Controls.Add(lbl1);
-        pnlLeft.Controls.Add(_txtCatName);
-        y += 65;
+        var flpInputs = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            FlowDirection = FlowDirection.TopDown,
+            WrapContents = false
+        };
+        pnlLeft.Controls.Add(flpInputs);
+        flpInputs.BringToFront();
 
-        var lbl2 = new Label { Text = "Mô tả:", Font = UITheme.FontBold, Location = new Point(16, y), AutoSize = true };
-        _txtCatDesc = new TextBox { Location = new Point(16, y + 22), Width = 320, Height = 80, Multiline = true, Font = UITheme.FontRegular, BorderStyle = BorderStyle.FixedSingle };
-        pnlLeft.Controls.Add(lbl2);
-        pnlLeft.Controls.Add(_txtCatDesc);
-        y += 120;
+        var lbl1 = new Label { Text = "Tên danh mục:", Font = UITheme.FontBold, Size = new Size(330, 20), Margin = new Padding(0, 10, 0, 4) };
+        _txtCatName = new TextBox { Size = new Size(330, 32), Font = UITheme.FontRegular, BorderStyle = BorderStyle.FixedSingle, Margin = new Padding(0, 0, 0, 16) };
+        flpInputs.Controls.Add(lbl1);
+        flpInputs.Controls.Add(_txtCatName);
 
-        _btnCatAdd = new RjButton { Text = "Thêm mới", Location = new Point(16, y), Size = new Size(95, 38), BackColor = UITheme.Primary, BorderRadius = 6 };
+        var lbl2 = new Label { Text = "Mô tả danh mục:", Font = UITheme.FontBold, Size = new Size(330, 20), Margin = new Padding(0, 0, 0, 4) };
+        _txtCatDesc = new TextBox { Size = new Size(330, 90), Multiline = true, Font = UITheme.FontRegular, BorderStyle = BorderStyle.FixedSingle, Margin = new Padding(0, 0, 0, 20) };
+        flpInputs.Controls.Add(lbl2);
+        flpInputs.Controls.Add(_txtCatDesc);
+
+        // Buttons
+        var tblBtns = new TableLayoutPanel
+        {
+            Size = new Size(330, 44),
+            ColumnCount = 3,
+            RowCount = 1,
+            Margin = new Padding(0, 0, 0, 10)
+        };
+        tblBtns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3F));
+        tblBtns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3F));
+        tblBtns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3F));
+        flpInputs.Controls.Add(tblBtns);
+
+        _btnCatAdd = new RjButton { Text = "Thêm mới", Dock = DockStyle.Fill, BackColor = UITheme.Primary, BorderRadius = 6 };
         _btnCatAdd.Click += BtnCatAdd_Click;
-        pnlLeft.Controls.Add(_btnCatAdd);
+        tblBtns.Controls.Add(_btnCatAdd, 0, 0);
 
-        _btnCatUpdate = new RjButton { Text = "Cập nhật", Location = new Point(120, y), Size = new Size(100, 38), BackColor = UITheme.Accent, BorderRadius = 6, Enabled = false };
+        _btnCatUpdate = new RjButton { Text = "Cập nhật", Dock = DockStyle.Fill, BackColor = UITheme.Accent, BorderRadius = 6, Enabled = false };
         _btnCatUpdate.Click += BtnCatUpdate_Click;
-        pnlLeft.Controls.Add(_btnCatUpdate);
+        tblBtns.Controls.Add(_btnCatUpdate, 1, 0);
 
-        _btnCatDelete = new RjButton { Text = "Xóa", Location = new Point(230, y), Size = new Size(105, 38), BackColor = UITheme.Danger, BorderRadius = 6, Enabled = false };
+        _btnCatDelete = new RjButton { Text = "Xóa", Dock = DockStyle.Fill, BackColor = UITheme.Danger, BorderRadius = 6, Enabled = false };
         _btnCatDelete.Click += BtnCatDelete_Click;
-        pnlLeft.Controls.Add(_btnCatDelete);
+        tblBtns.Controls.Add(_btnCatDelete, 2, 0);
 
-        var pnlRight = new Panel { Dock = DockStyle.Fill, Padding = new Padding(12), BackColor = UITheme.CanvasBg };
-        page.Controls.Add(pnlRight);
+        var btnClear = new RjButton
+        {
+            Text = "Làm mới Form",
+            Size = new Size(330, 38),
+            BackColor = Color.White,
+            ForeColor = UITheme.TextDark,
+            BorderColor = UITheme.Border,
+            BorderSize = 1,
+            BorderRadius = 6
+        };
+        btnClear.Click += (_, _) => { _selectedCatId = 0; _txtCatName.Clear(); _txtCatDesc.Clear(); _btnCatAdd.Enabled = true; _btnCatUpdate.Enabled = false; _btnCatDelete.Enabled = false; };
+        flpInputs.Controls.Add(btnClear);
 
-        _dgvCategories = new DataGridView { Dock = DockStyle.Fill };
+        // Panel 2: Right Grid
+        var pnlRight = split.Panel2;
+        pnlRight.BackColor = UITheme.CanvasBg;
+        pnlRight.Padding = new Padding(16);
+
+        _dgvCategories = new DataGridView
+        {
+            Dock = DockStyle.Fill,
+            AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+        };
         UITheme.ApplyModernGridStyle(_dgvCategories);
-        _dgvCategories.Columns.Add("Id", "ID");
-        _dgvCategories.Columns["Id"].Visible = false;
-        _dgvCategories.Columns.Add("Name", "Tên Danh Mục");
-        _dgvCategories.Columns["Name"].Width = 200;
-        _dgvCategories.Columns.Add("Description", "Mô Tả");
-        _dgvCategories.Columns["Description"].Width = 280;
-        _dgvCategories.Columns.Add("ProductCount", "Số Lượng Món");
-        _dgvCategories.Columns["ProductCount"].Width = 110;
+        _dgvCategories.Columns.Add(new DataGridViewTextBoxColumn { Name = "Id", Visible = false });
+        _dgvCategories.Columns.Add(new DataGridViewTextBoxColumn { Name = "Name", HeaderText = "Tên Danh Mục", FillWeight = 35 });
+        _dgvCategories.Columns.Add(new DataGridViewTextBoxColumn { Name = "Description", HeaderText = "Mô Tả", FillWeight = 45 });
+
+        var colCount = new DataGridViewTextBoxColumn
+        {
+            Name = "ProductCount",
+            HeaderText = "Số Lượng Món",
+            FillWeight = 20,
+            DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
+        };
+        _dgvCategories.Columns.Add(colCount);
 
         _dgvCategories.SelectionChanged += DgvCategories_SelectionChanged;
         pnlRight.Controls.Add(_dgvCategories);
@@ -214,19 +349,16 @@ public class FrmCategoryProduct : Form
         _categories = await _productService.GetAllCategoriesAsync();
         _products = await _productService.GetAllProductsAsync();
 
-        // Bind Category dropdown for Product form
         _cbProdCategory.DataSource = _categories.ToList();
         _cbProdCategory.DisplayMember = "Name";
         _cbProdCategory.ValueMember = "Id";
 
-        // Bind Category Grid
         _dgvCategories.Rows.Clear();
         foreach (var c in _categories)
         {
             _dgvCategories.Rows.Add(c.Id, c.Name, c.Description ?? "", c.Products.Count);
         }
 
-        // Bind Product Grid
         _dgvProducts.Rows.Clear();
         foreach (var p in _products)
         {
@@ -323,7 +455,6 @@ public class FrmCategoryProduct : Form
         }
     }
 
-    // Category CRUD
     private void DgvCategories_SelectionChanged(object? sender, EventArgs e)
     {
         if (_dgvCategories.SelectedRows.Count == 0) return;
@@ -397,4 +528,3 @@ public class FrmCategoryProduct : Form
         }
     }
 }
-

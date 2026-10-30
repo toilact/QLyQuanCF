@@ -37,8 +37,8 @@ public class UcTableCard : UserControl
     public UcTableCard()
     {
         DoubleBuffered = true;
-        Size = new Size(130, 115);
-        Margin = new Padding(8);
+        Size = new Size(155, 135);
+        Margin = new Padding(10);
         Cursor = Cursors.Hand;
         BackColor = Color.Transparent;
 
@@ -70,21 +70,19 @@ public class UcTableCard : UserControl
         g.DrawPath(penBorder, path);
 
         // 1. Tên Bàn
-        using var fontName = new Font("Segoe UI", 11.5f, FontStyle.Bold);
+        using var fontName = new Font("Segoe UI", 12f, FontStyle.Bold);
         using var brushDark = new SolidBrush(UITheme.TextDark);
-        var nameRect = new Rectangle(10, 10, Width - 20, 24);
-        g.DrawString(_table.Name, fontName, brushDark, nameRect);
+        g.DrawString(_table.Name, fontName, brushDark, new RectangleF(12, 12, Width - 24, 25));
 
         // 2. Khu vực
-        using var fontArea = new Font("Segoe UI", 8.5f, FontStyle.Regular);
+        using var fontArea = new Font("Segoe UI", 9f, FontStyle.Regular);
         using var brushMuted = new SolidBrush(UITheme.TextMuted);
-        var areaRect = new Rectangle(10, 32, Width - 20, 16);
-        g.DrawString(_table.Area, fontArea, brushMuted, areaRect);
+        g.DrawString(_table.Area, fontArea, brushMuted, new RectangleF(12, 38, Width - 24, 18));
 
         // 3. Badge Trạng thái
         string statusText = isOccupied ? "Có khách" : "Trống";
-        var badgeRect = new Rectangle(10, 56, 74, 20);
-        using var badgePath = UITheme.GetRoundedPath(badgeRect, 5);
+        var badgeRect = new Rectangle(12, 62, 78, 22);
+        using var badgePath = UITheme.GetRoundedPath(badgeRect, 6);
         using var badgeBg = new SolidBrush(isOccupied ? ColorTranslator.FromHtml("#F5D7CD") : UITheme.TableEmptyBg);
         using var badgePen = new Pen(statusColor, 1);
         using var fontBadge = new Font("Segoe UI", 8.5f, FontStyle.Bold);
@@ -96,15 +94,20 @@ public class UcTableCard : UserControl
         var sfCenter = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
         g.DrawString(statusText, fontBadge, badgeBrush, badgeRect, sfCenter);
 
-        // 4. Số tiền tạm tính (nếu có khách)
+        // 4. Số tiền tạm tính hoặc trạng thái chờ
         var bill = _table.Bills.FirstOrDefault(b => b.Status == 0);
         if (isOccupied && bill != null)
         {
             decimal sum = bill.Details.Sum(d => d.Quantity * d.UnitPrice);
-            using var fontPrice = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+            using var fontPrice = new Font("Segoe UI", 10.5f, FontStyle.Bold);
             using var brushPrice = new SolidBrush(UITheme.TableOccupied);
-            g.DrawString($"{sum:N0} đ", fontPrice, brushPrice, new RectangleF(10, 84, Width - 20, 20));
+            g.DrawString($"{sum:N0} đ", fontPrice, brushPrice, new RectangleF(12, 95, Width - 24, 22));
+        }
+        else
+        {
+            using var fontEmpty = new Font("Segoe UI", 8.5f, FontStyle.Italic);
+            using var brushEmpty = new SolidBrush(ColorTranslator.FromHtml("#A39D95"));
+            g.DrawString("Sẵn sàng phục vụ", fontEmpty, brushEmpty, new RectangleF(12, 97, Width - 24, 20));
         }
     }
 }
-

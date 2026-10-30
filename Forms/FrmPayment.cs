@@ -32,7 +32,7 @@ public class FrmPayment : Form
     private void InitializeComponent()
     {
         Text = $"Thanh Toán - {_bill.Table?.Name ?? "Hóa đơn"}";
-        Size = new Size(480, 460);
+        Size = new Size(520, 500);
         StartPosition = FormStartPosition.CenterParent;
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
@@ -41,11 +41,11 @@ public class FrmPayment : Form
 
         var pnlCard = new Panel
         {
-            Location = new Point(20, 20),
-            Size = new Size(425, 375),
+            Location = new Point(24, 20),
+            Size = new Size(455, 415),
             BackColor = UITheme.Surface,
             BorderStyle = BorderStyle.FixedSingle,
-            Padding = new Padding(20)
+            Padding = new Padding(24)
         };
         Controls.Add(pnlCard);
 
@@ -55,7 +55,7 @@ public class FrmPayment : Form
             Font = UITheme.FontDisplay,
             ForeColor = UITheme.Primary,
             Location = new Point(20, 15),
-            Size = new Size(385, 30),
+            Size = new Size(415, 30),
             TextAlign = ContentAlignment.MiddleCenter
         };
         pnlCard.Controls.Add(lblTitle);
@@ -66,7 +66,7 @@ public class FrmPayment : Form
             Font = UITheme.FontRegular,
             ForeColor = UITheme.TextMuted,
             Location = new Point(20, 48),
-            Size = new Size(385, 20),
+            Size = new Size(415, 20),
             TextAlign = ContentAlignment.MiddleCenter
         };
         pnlCard.Controls.Add(lblSub);
@@ -75,7 +75,7 @@ public class FrmPayment : Form
         var pnlDiv = new Panel
         {
             Location = new Point(20, 75),
-            Size = new Size(385, 1),
+            Size = new Size(415, 1),
             BackColor = UITheme.Border
         };
         pnlCard.Controls.Add(pnlDiv);
@@ -89,7 +89,7 @@ public class FrmPayment : Form
             Text = "0 đ",
             Font = UITheme.FontBold,
             Location = new Point(220, 95),
-            Size = new Size(185, 20),
+            Size = new Size(215, 20),
             TextAlign = ContentAlignment.MiddleRight
         };
         pnlCard.Controls.Add(_lblSubTotal);
@@ -116,7 +116,7 @@ public class FrmPayment : Form
             Font = UITheme.FontRegular,
             ForeColor = UITheme.Danger,
             Location = new Point(220, 135),
-            Size = new Size(185, 20),
+            Size = new Size(215, 20),
             TextAlign = ContentAlignment.MiddleRight
         };
         pnlCard.Controls.Add(_lblDiscountVal);
@@ -125,7 +125,7 @@ public class FrmPayment : Form
         var pnlDiv2 = new Panel
         {
             Location = new Point(20, 175),
-            Size = new Size(385, 1),
+            Size = new Size(415, 1),
             BackColor = UITheme.Border
         };
         pnlCard.Controls.Add(pnlDiv2);
@@ -137,10 +137,10 @@ public class FrmPayment : Form
         _lblFinalTotal = new Label
         {
             Text = "0 đ",
-            Font = new Font("Segoe UI", 16f, FontStyle.Bold),
+            Font = new Font("Segoe UI", 17f, FontStyle.Bold),
             ForeColor = UITheme.Danger,
-            Location = new Point(170, 188),
-            Size = new Size(235, 35),
+            Location = new Point(170, 186),
+            Size = new Size(265, 35),
             TextAlign = ContentAlignment.MiddleRight
         };
         pnlCard.Controls.Add(_lblFinalTotal);
@@ -150,7 +150,7 @@ public class FrmPayment : Form
         {
             Text = "In hóa đơn thanh toán",
             Font = UITheme.FontRegular,
-            Location = new Point(25, 245),
+            Location = new Point(25, 250),
             Size = new Size(200, 24),
             Checked = true
         };
@@ -160,8 +160,8 @@ public class FrmPayment : Form
         {
             Text = "Xem trước bản in (Preview)",
             Font = UITheme.FontRegular,
-            Location = new Point(230, 245),
-            Size = new Size(180, 24),
+            Location = new Point(235, 250),
+            Size = new Size(200, 24),
             Checked = true
         };
         pnlCard.Controls.Add(_chkPreview);
@@ -170,8 +170,8 @@ public class FrmPayment : Form
         _btnPay = new RjButton
         {
             Text = "HOÀN TẤT THANH TOÁN",
-            Location = new Point(195, 300),
-            Size = new Size(210, 44),
+            Location = new Point(205, 320),
+            Size = new Size(230, 46),
             BackColor = UITheme.Primary,
             HoverBackColor = UITheme.PrimaryHover,
             Font = UITheme.FontBold,
@@ -183,8 +183,8 @@ public class FrmPayment : Form
         var btnCancel = new RjButton
         {
             Text = "QUAY LẠI",
-            Location = new Point(65, 300),
-            Size = new Size(120, 44),
+            Location = new Point(65, 320),
+            Size = new Size(130, 46),
             BackColor = Color.White,
             HoverBackColor = ColorTranslator.FromHtml("#F0EBE5"),
             ForeColor = UITheme.TextDark,

@@ -19,6 +19,12 @@ static class Program
     [STAThread]
     static void Main()
     {
+        try
+        {
+            Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
+        }
+        catch { }
+
         ApplicationConfiguration.Initialize();
 
         // Thiết lập font chữ Segoe UI toàn cục, loại bỏ triệt để font mặc định cũ

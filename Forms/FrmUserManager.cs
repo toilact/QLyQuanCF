@@ -33,34 +33,62 @@ public class FrmUserManager : Form
 
     private void InitializeComponent()
     {
-        Text = "Quản Trị Người Dùng & Phân Quyền";
-        Size = new Size(960, 600);
+        Text = "Quản Trị Người Dùng và Phân Quyền";
+        Size = new Size(1080, 650);
+        MinimumSize = new Size(950, 550);
         StartPosition = FormStartPosition.CenterParent;
         BackColor = UITheme.CanvasBg;
 
-        // Left Panel (Form)
-        var pnlLeft = new Panel
+        var split = new SplitContainer
         {
-            Dock = DockStyle.Left,
-            Width = 340,
-            BackColor = UITheme.Surface,
-            BorderStyle = BorderStyle.FixedSingle,
-            Padding = new Padding(16)
+            Dock = DockStyle.Fill,
+            FixedPanel = FixedPanel.Panel1,
+            SplitterDistance = 370,
+            IsSplitterFixed = true,
+            BackColor = UITheme.Border
         };
-        Controls.Add(pnlLeft);
+        Controls.Add(split);
 
-        var lblTitle = new Label { Text = "THÔNG TIN TÀI KHOẢN", Font = UITheme.FontHeader, ForeColor = UITheme.Primary, Location = new Point(16, 16), AutoSize = true };
+        // Left Panel (Form)
+        var pnlLeft = split.Panel1;
+        pnlLeft.BackColor = UITheme.Surface;
+        pnlLeft.Padding = new Padding(24, 20, 24, 20);
+
+        var lblTitle = new Label
+        {
+            Text = "THÔNG TIN TÀI KHOẢN",
+            Font = UITheme.FontHeader,
+            ForeColor = UITheme.Primary,
+            Dock = DockStyle.Top,
+            Height = 35
+        };
         pnlLeft.Controls.Add(lblTitle);
 
-        int y = 55;
+        var flpInputs = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            FlowDirection = FlowDirection.TopDown,
+            WrapContents = false,
+            AutoScroll = true
+        };
+        pnlLeft.Controls.Add(flpInputs);
+        flpInputs.BringToFront();
+
         void AddField(string label, Control ctrl)
         {
-            var lbl = new Label { Text = label, Font = UITheme.FontBold, Location = new Point(16, y), AutoSize = true };
-            ctrl.Location = new Point(16, y + 22);
-            ctrl.Width = 300;
-            pnlLeft.Controls.Add(lbl);
-            pnlLeft.Controls.Add(ctrl);
-            y += 62;
+            var lbl = new Label
+            {
+                Text = label,
+                Font = UITheme.FontBold,
+                ForeColor = UITheme.TextDark,
+                Size = new Size(320, 20),
+                Margin = new Padding(0, 8, 0, 4)
+            };
+            ctrl.Size = new Size(320, 32);
+            ctrl.Margin = new Padding(0, 0, 0, 12);
+
+            flpInputs.Controls.Add(lbl);
+            flpInputs.Controls.Add(ctrl);
         }
 
         _txtUsername = new TextBox { Font = UITheme.FontRegular, BorderStyle = BorderStyle.FixedSingle };
@@ -70,49 +98,94 @@ public class FrmUserManager : Form
         AddField("Mật khẩu (để trống nếu không đổi):", _txtPassword);
 
         _txtFullName = new TextBox { Font = UITheme.FontRegular, BorderStyle = BorderStyle.FixedSingle };
-        AddField("Họ và tên:", _txtFullName);
+        AddField("Họ và tên nhân viên:", _txtFullName);
 
         _cbRole = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Font = UITheme.FontRegular };
         _cbRole.Items.AddRange(new object[] { "Staff", "Admin" });
         _cbRole.SelectedIndex = 0;
-        AddField("Vai trò (Phân quyền):", _cbRole);
+        AddField("Vai trò phân quyền:", _cbRole);
 
-        _chkActive = new CheckBox { Text = "Tài khoản đang hoạt động", Checked = true, Font = UITheme.FontRegular, Location = new Point(16, y), AutoSize = true };
-        pnlLeft.Controls.Add(_chkActive);
-        y += 40;
+        _chkActive = new CheckBox
+        {
+            Text = "Tài khoản đang hoạt động",
+            Checked = true,
+            Font = UITheme.FontRegular,
+            Size = new Size(320, 28),
+            Margin = new Padding(0, 4, 0, 16)
+        };
+        flpInputs.Controls.Add(_chkActive);
 
-        _btnAdd = new RjButton { Text = "Thêm mới", Location = new Point(16, y), Size = new Size(95, 38), BackColor = UITheme.Primary, BorderRadius = 6 };
+        // Buttons Table
+        var tblBtns = new TableLayoutPanel
+        {
+            Size = new Size(320, 44),
+            ColumnCount = 3,
+            RowCount = 1,
+            Margin = new Padding(0, 0, 0, 10)
+        };
+        tblBtns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3F));
+        tblBtns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3F));
+        tblBtns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3F));
+        flpInputs.Controls.Add(tblBtns);
+
+        _btnAdd = new RjButton { Text = "Thêm mới", Dock = DockStyle.Fill, BackColor = UITheme.Primary, BorderRadius = 6 };
         _btnAdd.Click += BtnAdd_Click;
-        pnlLeft.Controls.Add(_btnAdd);
+        tblBtns.Controls.Add(_btnAdd, 0, 0);
 
-        _btnUpdate = new RjButton { Text = "Cập nhật", Location = new Point(118, y), Size = new Size(95, 38), BackColor = UITheme.Accent, BorderRadius = 6, Enabled = false };
+        _btnUpdate = new RjButton { Text = "Cập nhật", Dock = DockStyle.Fill, BackColor = UITheme.Accent, BorderRadius = 6, Enabled = false };
         _btnUpdate.Click += BtnUpdate_Click;
-        pnlLeft.Controls.Add(_btnUpdate);
+        tblBtns.Controls.Add(_btnUpdate, 1, 0);
 
-        _btnToggleStatus = new RjButton { Text = "Khóa/Mở", Location = new Point(220, y), Size = new Size(95, 38), BackColor = UITheme.Danger, BorderRadius = 6, Enabled = false };
+        _btnToggleStatus = new RjButton { Text = "Khóa/Mở", Dock = DockStyle.Fill, BackColor = UITheme.Danger, BorderRadius = 6, Enabled = false };
         _btnToggleStatus.Click += BtnToggleStatus_Click;
-        pnlLeft.Controls.Add(_btnToggleStatus);
+        tblBtns.Controls.Add(_btnToggleStatus, 2, 0);
 
-        var btnClear = new RjButton { Text = "Làm mới form", Location = new Point(16, y + 48), Size = new Size(300, 34), BackColor = Color.White, ForeColor = UITheme.TextDark, BorderColor = UITheme.Border, BorderSize = 1, BorderRadius = 6 };
+        var btnClear = new RjButton
+        {
+            Text = "Làm mới Form",
+            Size = new Size(320, 38),
+            BackColor = Color.White,
+            ForeColor = UITheme.TextDark,
+            BorderColor = UITheme.Border,
+            BorderSize = 1,
+            BorderRadius = 6
+        };
         btnClear.Click += (_, _) => ClearForm();
-        pnlLeft.Controls.Add(btnClear);
+        flpInputs.Controls.Add(btnClear);
 
         // Right DataGridView
-        var pnlRight = new Panel { Dock = DockStyle.Fill, Padding = new Padding(12), BackColor = UITheme.CanvasBg };
-        Controls.Add(pnlRight);
+        var pnlRight = split.Panel2;
+        pnlRight.BackColor = UITheme.CanvasBg;
+        pnlRight.Padding = new Padding(16);
 
-        _dgvUsers = new DataGridView { Dock = DockStyle.Fill };
+        _dgvUsers = new DataGridView
+        {
+            Dock = DockStyle.Fill,
+            AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+        };
         UITheme.ApplyModernGridStyle(_dgvUsers);
-        _dgvUsers.Columns.Add("Id", "ID");
-        _dgvUsers.Columns["Id"].Visible = false;
-        _dgvUsers.Columns.Add("Username", "Tên Đăng Nhập");
-        _dgvUsers.Columns["Username"].Width = 140;
-        _dgvUsers.Columns.Add("FullName", "Họ Và Tên");
-        _dgvUsers.Columns["FullName"].Width = 180;
-        _dgvUsers.Columns.Add("Role", "Vai Trò");
-        _dgvUsers.Columns["Role"].Width = 100;
-        _dgvUsers.Columns.Add("Status", "Trạng Thái");
-        _dgvUsers.Columns["Status"].Width = 110;
+
+        _dgvUsers.Columns.Add(new DataGridViewTextBoxColumn { Name = "Id", Visible = false });
+        _dgvUsers.Columns.Add(new DataGridViewTextBoxColumn { Name = "Username", HeaderText = "Tên Đăng Nhập", FillWeight = 26 });
+        _dgvUsers.Columns.Add(new DataGridViewTextBoxColumn { Name = "FullName", HeaderText = "Họ Và Tên", FillWeight = 38 });
+
+        var colRole = new DataGridViewTextBoxColumn
+        {
+            Name = "Role",
+            HeaderText = "Vai Trò",
+            FillWeight = 18,
+            DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
+        };
+        _dgvUsers.Columns.Add(colRole);
+
+        var colStatus = new DataGridViewTextBoxColumn
+        {
+            Name = "Status",
+            HeaderText = "Trạng Thái",
+            FillWeight = 18,
+            DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
+        };
+        _dgvUsers.Columns.Add(colStatus);
 
         _dgvUsers.SelectionChanged += DgvUsers_SelectionChanged;
         pnlRight.Controls.Add(_dgvUsers);
@@ -149,7 +222,7 @@ public class FrmUserManager : Form
 
         _btnAdd.Enabled = false;
         _btnUpdate.Enabled = true;
-        _btnToggleStatus.Enabled = (user.Id != _currentUser.Id); // Không tự khóa chính mình
+        _btnToggleStatus.Enabled = (user.Id != _currentUser.Id);
         _btnToggleStatus.Text = user.IsActive ? "Khóa" : "Mở khóa";
     }
 
@@ -195,7 +268,7 @@ public class FrmUserManager : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Lỗi tạo tài khoản (có thể username đã tồn tại): {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show($"Lỗi tạo tài khoản: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -226,4 +299,3 @@ public class FrmUserManager : Form
         LoadDataAsync();
     }
 }
-

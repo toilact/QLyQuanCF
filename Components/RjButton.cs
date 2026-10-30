@@ -55,6 +55,7 @@ public class RjButton : Button
         ForeColor = Color.White;
         Font = UITheme.FontBold;
         Cursor = Cursors.Hand;
+        UseMnemonic = false;
         _originalBgColor = BackColor;
         _hoverBgColor = UITheme.PrimaryHover;
 
@@ -110,7 +111,7 @@ public class RjButton : Button
         }
 
         // Draw Text
-        var textFlags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.WordBreak;
+        var textFlags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis;
         Color textCol = Enabled ? ForeColor : Color.Gray;
         TextRenderer.DrawText(g, Text, Font, rectSurface, textCol, textFlags);
     }

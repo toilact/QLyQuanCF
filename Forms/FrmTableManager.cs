@@ -27,73 +27,118 @@ public class FrmTableManager : Form
 
     private void InitializeComponent()
     {
-        Text = "Quản Lý Bàn & Khu Vực";
-        Size = new Size(880, 560);
+        Text = "Quản Lý Bàn và Khu Vực";
+        Size = new Size(980, 620);
+        MinimumSize = new Size(880, 520);
         StartPosition = FormStartPosition.CenterParent;
         BackColor = UITheme.CanvasBg;
 
-        // Left Panel (Input Form)
-        var pnlLeft = new Panel
+        var split = new SplitContainer
         {
-            Dock = DockStyle.Left,
-            Width = 320,
-            BackColor = UITheme.Surface,
-            BorderStyle = BorderStyle.FixedSingle,
-            Padding = new Padding(16)
+            Dock = DockStyle.Fill,
+            FixedPanel = FixedPanel.Panel1,
+            SplitterDistance = 350,
+            IsSplitterFixed = true,
+            BackColor = UITheme.Border
         };
-        Controls.Add(pnlLeft);
+        Controls.Add(split);
+
+        // Left Panel (Input Form)
+        var pnlLeft = split.Panel1;
+        pnlLeft.BackColor = UITheme.Surface;
+        pnlLeft.Padding = new Padding(24, 20, 24, 20);
 
         var lblTitle = new Label
         {
-            Text = "THÔNG TIN BÀN",
+            Text = "THÔNG TIN BÀN ĂN",
             Font = UITheme.FontHeader,
             ForeColor = UITheme.Primary,
-            Location = new Point(16, 16),
-            AutoSize = true
+            Dock = DockStyle.Top,
+            Height = 35
         };
         pnlLeft.Controls.Add(lblTitle);
 
-        var lbl1 = new Label { Text = "Tên bàn:", Font = UITheme.FontBold, Location = new Point(16, 60), AutoSize = true };
-        _txtTableName = new TextBox { Location = new Point(16, 85), Width = 280, Font = UITheme.FontRegular, BorderStyle = BorderStyle.FixedSingle };
-        pnlLeft.Controls.Add(lbl1);
-        pnlLeft.Controls.Add(_txtTableName);
+        var flpInputs = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            FlowDirection = FlowDirection.TopDown,
+            WrapContents = false
+        };
+        pnlLeft.Controls.Add(flpInputs);
+        flpInputs.BringToFront();
 
-        var lbl2 = new Label { Text = "Khu vực:", Font = UITheme.FontBold, Location = new Point(16, 125), AutoSize = true };
-        _cbTableArea = new ComboBox { Location = new Point(16, 150), Width = 280, Font = UITheme.FontRegular };
-        pnlLeft.Controls.Add(lbl2);
-        pnlLeft.Controls.Add(_cbTableArea);
+        var lbl1 = new Label { Text = "Tên bàn:", Font = UITheme.FontBold, Size = new Size(300, 20), Margin = new Padding(0, 10, 0, 4) };
+        _txtTableName = new TextBox { Size = new Size(300, 32), Font = UITheme.FontRegular, BorderStyle = BorderStyle.FixedSingle, Margin = new Padding(0, 0, 0, 16) };
+        flpInputs.Controls.Add(lbl1);
+        flpInputs.Controls.Add(_txtTableName);
 
-        // Buttons
-        _btnAdd = new RjButton { Text = "Thêm bàn", Location = new Point(16, 210), Size = new Size(85, 38), BackColor = UITheme.Primary, BorderRadius = 6 };
+        var lbl2 = new Label { Text = "Khu vực (Tầng 1, Sân vườn,...):", Font = UITheme.FontBold, Size = new Size(300, 20), Margin = new Padding(0, 0, 0, 4) };
+        _cbTableArea = new ComboBox { Size = new Size(300, 32), Font = UITheme.FontRegular, Margin = new Padding(0, 0, 0, 24) };
+        flpInputs.Controls.Add(lbl2);
+        flpInputs.Controls.Add(_cbTableArea);
+
+        // Action Buttons Table
+        var tblBtns = new TableLayoutPanel
+        {
+            Size = new Size(300, 44),
+            ColumnCount = 3,
+            RowCount = 1,
+            Margin = new Padding(0, 0, 0, 10)
+        };
+        tblBtns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3F));
+        tblBtns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3F));
+        tblBtns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3F));
+        flpInputs.Controls.Add(tblBtns);
+
+        _btnAdd = new RjButton { Text = "Thêm bàn", Dock = DockStyle.Fill, BackColor = UITheme.Primary, BorderRadius = 6 };
         _btnAdd.Click += BtnAdd_Click;
-        pnlLeft.Controls.Add(_btnAdd);
+        tblBtns.Controls.Add(_btnAdd, 0, 0);
 
-        _btnUpdate = new RjButton { Text = "Cập nhật", Location = new Point(108, 210), Size = new Size(90, 38), BackColor = UITheme.Accent, BorderRadius = 6, Enabled = false };
+        _btnUpdate = new RjButton { Text = "Cập nhật", Dock = DockStyle.Fill, BackColor = UITheme.Accent, BorderRadius = 6, Enabled = false };
         _btnUpdate.Click += BtnUpdate_Click;
-        pnlLeft.Controls.Add(_btnUpdate);
+        tblBtns.Controls.Add(_btnUpdate, 1, 0);
 
-        _btnDelete = new RjButton { Text = "Xóa bàn", Location = new Point(205, 210), Size = new Size(90, 38), BackColor = UITheme.Danger, BorderRadius = 6, Enabled = false };
+        _btnDelete = new RjButton { Text = "Xóa bàn", Dock = DockStyle.Fill, BackColor = UITheme.Danger, BorderRadius = 6, Enabled = false };
         _btnDelete.Click += BtnDelete_Click;
-        pnlLeft.Controls.Add(_btnDelete);
+        tblBtns.Controls.Add(_btnDelete, 2, 0);
 
-        var btnClear = new RjButton { Text = "Làm mới form", Location = new Point(16, 260), Size = new Size(280, 34), BackColor = Color.White, ForeColor = UITheme.TextDark, BorderColor = UITheme.Border, BorderSize = 1, BorderRadius = 6 };
+        var btnClear = new RjButton
+        {
+            Text = "Làm mới Form",
+            Size = new Size(300, 38),
+            BackColor = Color.White,
+            ForeColor = UITheme.TextDark,
+            BorderColor = UITheme.Border,
+            BorderSize = 1,
+            BorderRadius = 6
+        };
         btnClear.Click += (_, _) => ClearForm();
-        pnlLeft.Controls.Add(btnClear);
+        flpInputs.Controls.Add(btnClear);
 
         // Right DataGridView
-        var pnlRight = new Panel { Dock = DockStyle.Fill, Padding = new Padding(12), BackColor = UITheme.CanvasBg };
-        Controls.Add(pnlRight);
+        var pnlRight = split.Panel2;
+        pnlRight.BackColor = UITheme.CanvasBg;
+        pnlRight.Padding = new Padding(16);
 
-        _dgvTables = new DataGridView { Dock = DockStyle.Fill };
+        _dgvTables = new DataGridView
+        {
+            Dock = DockStyle.Fill,
+            AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+        };
         UITheme.ApplyModernGridStyle(_dgvTables);
-        _dgvTables.Columns.Add("Id", "ID");
-        _dgvTables.Columns["Id"].Visible = false;
-        _dgvTables.Columns.Add("Name", "Tên Bàn");
-        _dgvTables.Columns["Name"].Width = 160;
-        _dgvTables.Columns.Add("Area", "Khu Vực");
-        _dgvTables.Columns["Area"].Width = 180;
-        _dgvTables.Columns.Add("Status", "Trạng Thái");
-        _dgvTables.Columns["Status"].Width = 140;
+
+        _dgvTables.Columns.Add(new DataGridViewTextBoxColumn { Name = "Id", Visible = false });
+        _dgvTables.Columns.Add(new DataGridViewTextBoxColumn { Name = "Name", HeaderText = "Tên Bàn", FillWeight = 35 });
+        _dgvTables.Columns.Add(new DataGridViewTextBoxColumn { Name = "Area", HeaderText = "Khu Vực", FillWeight = 35 });
+
+        var colStatus = new DataGridViewTextBoxColumn
+        {
+            Name = "Status",
+            HeaderText = "Trạng Thái",
+            FillWeight = 30,
+            DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
+        };
+        _dgvTables.Columns.Add(colStatus);
 
         _dgvTables.SelectionChanged += DgvTables_SelectionChanged;
         pnlRight.Controls.Add(_dgvTables);
@@ -105,7 +150,6 @@ public class FrmTableManager : Form
     {
         _tables = await _tableService.GetAllTablesAsync();
 
-        // Load distinct areas into combobox
         var areas = _tables.Select(t => t.Area).Distinct().ToList();
         _cbTableArea.Items.Clear();
         foreach (var a in areas) _cbTableArea.Items.Add(a);
@@ -133,7 +177,7 @@ public class FrmTableManager : Form
 
         _btnAdd.Enabled = false;
         _btnUpdate.Enabled = true;
-        _btnDelete.Enabled = (table.Status == 0); // Chỉ cho xóa nếu bàn trống
+        _btnDelete.Enabled = (table.Status == 0);
     }
 
     private void ClearForm()
@@ -196,4 +240,3 @@ public class FrmTableManager : Form
         }
     }
 }
-

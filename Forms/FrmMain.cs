@@ -21,6 +21,7 @@ public class FrmMain : Form
     private Label _lblSelectedTableName = null!;
     private Label _lblSelectedTableStatus = null!;
     private Label _lblSubTotal = null!;
+    private Label _lblTableStats = null!;
     private RjButton _btnAddProduct = null!;
     private RjButton _btnSwitchTable = null!;
     private RjButton _btnMergeTable = null!;
@@ -29,6 +30,7 @@ public class FrmMain : Form
 
     private Table? _selectedTable;
     private Bill? _currentBill;
+    private List<Table> _loadedTables = new();
 
     public FrmMain(
         User currentUser,
@@ -51,83 +53,142 @@ public class FrmMain : Form
 
     private void InitializeComponent()
     {
-        Text = "Hệ Thống Quản Lý Quán Cà Phê - POS Bán Hàng";
-        Size = new Size(1280, 800);
+        Text = "Cà Phê Hương Việt - Hệ Thống Bán Hàng & Quản Trị POS";
+        Size = new Size(1366, 820);
+        MinimumSize = new Size(1200, 750);
         StartPosition = FormStartPosition.CenterScreen;
         WindowState = FormWindowState.Maximized;
         BackColor = UITheme.CanvasBg;
 
-        // 1. TOP HEADER BAR
+        // 1. TOP HEADER BAR (Dock = Top)
         var pnlHeader = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 60,
+            Height = 65,
             BackColor = UITheme.Primary,
-            Padding = new Padding(20, 0, 20, 0)
+            Padding = new Padding(24, 0, 20, 0)
         };
         Controls.Add(pnlHeader);
+
+        // Header Left: Brand info
+        var pnlHeaderLeft = new Panel
+        {
+            Dock = DockStyle.Left,
+            Width = 350,
+            BackColor = Color.Transparent
+        };
+        pnlHeader.Controls.Add(pnlHeaderLeft);
 
         var lblBrand = new Label
         {
             Text = "CÀ PHÊ HƯƠNG VIỆT",
-            Font = new Font("Segoe UI", 14f, FontStyle.Bold),
+            Font = new Font("Segoe UI", 15f, FontStyle.Bold),
             ForeColor = Color.White,
-            AutoSize = true,
-            Location = new Point(20, 18)
+            Location = new Point(0, 10),
+            AutoSize = true
         };
-        pnlHeader.Controls.Add(lblBrand);
+        pnlHeaderLeft.Controls.Add(lblBrand);
 
-        var lblUser = new Label
+        var lblSubBrand = new Label
         {
-            Text = $"Nhân viên: {_currentUser.FullName}  [{_currentUser.Role}]",
-            Font = UITheme.FontRegular,
-            ForeColor = ColorTranslator.FromHtml("#EBE2D8"),
-            AutoSize = true,
-            Anchor = AnchorStyles.Top | AnchorStyles.Right,
-            Location = new Point(pnlHeader.Width - 340, 20)
+            Text = "Hệ thống POS bán hàng & Quản trị quán",
+            Font = new Font("Segoe UI", 9f, FontStyle.Regular),
+            ForeColor = ColorTranslator.FromHtml("#D4C7BA"),
+            Location = new Point(2, 38),
+            AutoSize = true
         };
-        pnlHeader.Controls.Add(lblUser);
+        pnlHeaderLeft.Controls.Add(lblSubBrand);
+
+        // Header Right: User info & Logout
+        var pnlHeaderRight = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Right,
+            FlowDirection = FlowDirection.RightToLeft,
+            AutoSize = true,
+            BackColor = Color.Transparent,
+            Padding = new Padding(0, 14, 0, 0)
+        };
+        pnlHeader.Controls.Add(pnlHeaderRight);
 
         var btnLogout = new RjButton
         {
             Text = "Đăng xuất",
-            Size = new Size(95, 32),
+            Size = new Size(100, 36),
             BackColor = UITheme.Accent,
             HoverBackColor = UITheme.AccentHover,
-            Font = UITheme.FontSmall,
-            BorderRadius = 4,
-            Anchor = AnchorStyles.Top | AnchorStyles.Right,
-            Location = new Point(pnlHeader.Width - 120, 14)
+            Font = UITheme.FontBold,
+            BorderRadius = 6,
+            Margin = new Padding(12, 0, 0, 0)
         };
         btnLogout.Click += (_, _) => Close();
-        pnlHeader.Controls.Add(btnLogout);
+        pnlHeaderRight.Controls.Add(btnLogout);
 
-        // 2. LEFT SIDEBAR MENU
+        var lblRoleBadge = new Label
+        {
+            Text = _currentUser.Role == "Admin" ? " QUẢN TRỊ VIÊN " : " THU NGÂN ",
+            Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
+            ForeColor = Color.White,
+            BackColor = _currentUser.Role == "Admin" ? UITheme.Accent : UITheme.TableEmpty,
+            TextAlign = ContentAlignment.MiddleCenter,
+            Size = new Size(115, 26),
+            Margin = new Padding(12, 5, 0, 0)
+        };
+        pnlHeaderRight.Controls.Add(lblRoleBadge);
+
+        var lblUserName = new Label
+        {
+            Text = _currentUser.FullName,
+            Font = new Font("Segoe UI", 10.5f, FontStyle.Bold),
+            ForeColor = Color.White,
+            TextAlign = ContentAlignment.MiddleRight,
+            AutoSize = true,
+            Margin = new Padding(0, 8, 0, 0)
+        };
+        pnlHeaderRight.Controls.Add(lblUserName);
+
+        // 2. ROOT BODY CONTAINER (Dock = Fill, isolates header from overlapping body)
+        var pnlBody = new Panel
+        {
+            Dock = DockStyle.Fill,
+            BackColor = UITheme.CanvasBg
+        };
+        Controls.Add(pnlBody);
+        pnlBody.BringToFront();
+
+        // 2.1 LEFT SIDEBAR (Dock = Left inside pnlBody)
         var pnlSidebar = new Panel
         {
             Dock = DockStyle.Left,
-            Width = 220,
+            Width = 230,
             BackColor = UITheme.Surface,
             BorderStyle = BorderStyle.FixedSingle,
-            Padding = new Padding(12)
+            Padding = new Padding(12, 16, 12, 16)
         };
-        Controls.Add(pnlSidebar);
+        pnlBody.Controls.Add(pnlSidebar);
 
-        int btnY = 20;
+        var flpNav = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            FlowDirection = FlowDirection.TopDown,
+            WrapContents = false,
+            AutoScroll = true
+        };
+        pnlSidebar.Controls.Add(flpNav);
+
         void AddNavButton(string title, bool isAdminOnly, EventHandler onClick)
         {
             var btn = new RjButton
             {
                 Text = title,
-                Location = new Point(12, btnY),
-                Size = new Size(194, 42),
+                Size = new Size(204, 46),
+                Margin = new Padding(0, 0, 0, 10),
                 BackColor = UITheme.CanvasBg,
                 HoverBackColor = ColorTranslator.FromHtml("#EBE2D8"),
                 ForeColor = UITheme.TextDark,
                 Font = UITheme.FontBold,
                 BorderColor = UITheme.Border,
                 BorderSize = 1,
-                BorderRadius = 6
+                BorderRadius = 8
             };
 
             if (isAdminOnly && _currentUser.Role != "Admin")
@@ -141,202 +202,241 @@ public class FrmMain : Form
                 btn.Click += onClick;
             }
 
-            pnlSidebar.Controls.Add(btn);
-            btnY += 52;
+            flpNav.Controls.Add(btn);
         }
 
         AddNavButton("Bán hàng (POS)", false, async (_, _) => await LoadTablesAsync());
-        AddNavButton("Thực đơn & Món", true, (_, _) => OpenForm(new FrmCategoryProduct(_productService)));
-        AddNavButton("Quản lý Bàn", true, (_, _) => OpenForm(new FrmTableManager(_tableService)));
-        AddNavButton("Quản lý Nhân viên", true, (_, _) => OpenForm(new FrmUserManager(_authService, _currentUser)));
-        AddNavButton("Báo cáo Doanh thu", true, (_, _) => OpenForm(new FrmReport(_reportService)));
+        AddNavButton("Thực đơn món", true, (_, _) => OpenForm(new FrmCategoryProduct(_productService)));
+        AddNavButton("Quản lý bàn", true, (_, _) => OpenForm(new FrmTableManager(_tableService)));
+        AddNavButton("Quản lý nhân viên", true, (_, _) => OpenForm(new FrmUserManager(_authService, _currentUser)));
+        AddNavButton("Báo cáo doanh thu", true, (_, _) => OpenForm(new FrmReport(_reportService)));
 
-        // Ghi chú quyền
         if (_currentUser.Role != "Admin")
         {
             var lblRoleHint = new Label
             {
-                Text = "(*) Chức năng chỉ dành cho Admin",
+                Text = "(*) Chỉ tài khoản Admin mới mở được",
                 Font = UITheme.FontSmall,
                 ForeColor = UITheme.TextMuted,
-                Location = new Point(12, btnY + 20),
-                Size = new Size(194, 40)
+                Size = new Size(204, 40),
+                Margin = new Padding(0, 10, 0, 0)
             };
-            pnlSidebar.Controls.Add(lblRoleHint);
+            flpNav.Controls.Add(lblRoleHint);
         }
 
-        // 3. RIGHT POS BILL PANEL
+        // 2.2 RIGHT POS BILL PANEL (Dock = Right inside pnlBody)
         var pnlBill = new Panel
         {
             Dock = DockStyle.Right,
-            Width = 440,
+            Width = 460,
             BackColor = UITheme.Surface,
             BorderStyle = BorderStyle.FixedSingle,
             Padding = new Padding(16)
         };
-        Controls.Add(pnlBill);
+        pnlBody.Controls.Add(pnlBill);
 
-        // Bill Header
+        // Header Info of Selected Table
+        var pnlBillHeader = new Panel
+        {
+            Dock = DockStyle.Top,
+            Height = 45,
+            BackColor = Color.Transparent
+        };
+        pnlBill.Controls.Add(pnlBillHeader);
+
         _lblSelectedTableName = new Label
         {
             Text = "Chọn bàn để thao tác",
             Font = UITheme.FontHeader,
             ForeColor = UITheme.Primary,
-            Location = new Point(16, 16),
-            Size = new Size(260, 25)
+            Location = new Point(0, 10),
+            AutoSize = true
         };
-        pnlBill.Controls.Add(_lblSelectedTableName);
+        pnlBillHeader.Controls.Add(_lblSelectedTableName);
 
         _lblSelectedTableStatus = new Label
         {
             Text = "",
             Font = UITheme.FontBold,
-            Location = new Point(280, 18),
-            Size = new Size(140, 22),
-            TextAlign = ContentAlignment.MiddleRight
+            Dock = DockStyle.Right,
+            TextAlign = ContentAlignment.MiddleRight,
+            Width = 140
         };
-        pnlBill.Controls.Add(_lblSelectedTableStatus);
+        pnlBillHeader.Controls.Add(_lblSelectedTableStatus);
 
-        // Bill Items DataGridView
-        _dgvBill = new DataGridView
-        {
-            Location = new Point(16, 50),
-            Size = new Size(405, 420),
-            Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right
-        };
-        UITheme.ApplyModernGridStyle(_dgvBill);
-        SetupBillGridColumns();
-        pnlBill.Controls.Add(_dgvBill);
-
-        // Action Toolbar (Buttons)
+        // Actions at the bottom of Bill Panel
         var pnlActions = new Panel
         {
             Dock = DockStyle.Bottom,
-            Height = 220,
-            BackColor = UITheme.Surface
+            Height = 200,
+            BackColor = UITheme.Surface,
+            Padding = new Padding(0, 10, 0, 0)
         };
         pnlBill.Controls.Add(pnlActions);
 
         // Subtotal row
+        var pnlSubTotalRow = new Panel
+        {
+            Dock = DockStyle.Top,
+            Height = 40,
+            BackColor = Color.Transparent
+        };
+        pnlActions.Controls.Add(pnlSubTotalRow);
+
         var lblSubTitle = new Label
         {
-            Text = "TẠM TÍNH:",
+            Text = "TỔNG TẠM TÍNH:",
             Font = UITheme.FontHeader,
             ForeColor = UITheme.TextDark,
-            Location = new Point(16, 15),
+            Location = new Point(0, 8),
             AutoSize = true
         };
-        pnlActions.Controls.Add(lblSubTitle);
+        pnlSubTotalRow.Controls.Add(lblSubTitle);
 
         _lblSubTotal = new Label
         {
             Text = "0 đ",
-            Font = new Font("Segoe UI", 15f, FontStyle.Bold),
+            Font = new Font("Segoe UI", 16f, FontStyle.Bold),
             ForeColor = UITheme.Danger,
-            Location = new Point(160, 10),
-            Size = new Size(260, 30),
-            TextAlign = ContentAlignment.MiddleRight
+            Dock = DockStyle.Right,
+            TextAlign = ContentAlignment.MiddleRight,
+            Width = 240
         };
-        pnlActions.Controls.Add(_lblSubTotal);
+        pnlSubTotalRow.Controls.Add(_lblSubTotal);
 
-        // Buttons row 1
+        // Button Row 1 (Add, Switch, Merge)
+        var tblButtons = new TableLayoutPanel
+        {
+            Dock = DockStyle.Top,
+            Height = 48,
+            ColumnCount = 3,
+            RowCount = 1,
+            Margin = new Padding(0, 8, 0, 8)
+        };
+        tblButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 35F));
+        tblButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 32.5F));
+        tblButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 32.5F));
+        pnlActions.Controls.Add(tblButtons);
+
         _btnAddProduct = new RjButton
         {
             Text = "+ THÊM MÓN",
-            Location = new Point(16, 55),
-            Size = new Size(130, 42),
+            Dock = DockStyle.Fill,
             BackColor = UITheme.Accent,
             HoverBackColor = UITheme.AccentHover,
+            Font = UITheme.FontBold,
             BorderRadius = 6,
             Enabled = false
         };
         _btnAddProduct.Click += BtnAddProduct_Click;
-        pnlActions.Controls.Add(_btnAddProduct);
+        tblButtons.Controls.Add(_btnAddProduct, 0, 0);
 
         _btnSwitchTable = new RjButton
         {
             Text = "ĐỔI BÀN",
-            Location = new Point(155, 55),
-            Size = new Size(130, 42),
+            Dock = DockStyle.Fill,
             BackColor = Color.White,
             HoverBackColor = ColorTranslator.FromHtml("#F0EBE5"),
             ForeColor = UITheme.TextDark,
+            Font = UITheme.FontBold,
             BorderColor = UITheme.Border,
             BorderSize = 1,
             BorderRadius = 6,
             Enabled = false
         };
         _btnSwitchTable.Click += BtnSwitchTable_Click;
-        pnlActions.Controls.Add(_btnSwitchTable);
+        tblButtons.Controls.Add(_btnSwitchTable, 1, 0);
 
         _btnMergeTable = new RjButton
         {
             Text = "GỘP BÀN",
-            Location = new Point(292, 55),
-            Size = new Size(130, 42),
+            Dock = DockStyle.Fill,
             BackColor = Color.White,
             HoverBackColor = ColorTranslator.FromHtml("#F0EBE5"),
             ForeColor = UITheme.TextDark,
+            Font = UITheme.FontBold,
             BorderColor = UITheme.Border,
             BorderSize = 1,
             BorderRadius = 6,
             Enabled = false
         };
         _btnMergeTable.Click += BtnMergeTable_Click;
-        pnlActions.Controls.Add(_btnMergeTable);
+        tblButtons.Controls.Add(_btnMergeTable, 2, 0);
 
-        // Pay Button
+        // Button Row 2 (Pay button)
         _btnPay = new RjButton
         {
-            Text = "THANH TOÁN & IN HÓA ĐƠN",
-            Location = new Point(16, 110),
-            Size = new Size(406, 50),
+            Text = "THANH TOÁN VÀ IN HÓA ĐƠN",
+            Dock = DockStyle.Bottom,
+            Height = 52,
             BackColor = UITheme.Primary,
             HoverBackColor = UITheme.PrimaryHover,
-            Font = new Font("Segoe UI", 11f, FontStyle.Bold),
-            BorderRadius = 6,
+            Font = new Font("Segoe UI", 11.5f, FontStyle.Bold),
+            BorderRadius = 8,
             Enabled = false
         };
         _btnPay.Click += BtnPay_Click;
         pnlActions.Controls.Add(_btnPay);
 
-        // 4. CENTER TABLE MAP AREA
+        // Bill Items DataGridView (Dock = Fill in remaining space)
+        _dgvBill = new DataGridView
+        {
+            Dock = DockStyle.Fill,
+            ScrollBars = ScrollBars.Vertical
+        };
+        UITheme.ApplyModernGridStyle(_dgvBill);
+        SetupBillGridColumns();
+        pnlBill.Controls.Add(_dgvBill);
+        _dgvBill.BringToFront();
+
+        // 2.3 CENTER TABLE MAP AREA (Dock = Fill inside pnlBody)
         var pnlCenter = new Panel
         {
             Dock = DockStyle.Fill,
             BackColor = UITheme.CanvasBg,
-            Padding = new Padding(20)
+            Padding = new Padding(20, 16, 20, 16)
         };
-        Controls.Add(pnlCenter);
+        pnlBody.Controls.Add(pnlCenter);
+        pnlCenter.BringToFront();
 
         // Area Filter Panel
         var pnlFilter = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 45,
+            Height = 50,
             BackColor = Color.Transparent
         };
         pnlCenter.Controls.Add(pnlFilter);
 
         var lblArea = new Label
         {
-            Text = "Khu vực:",
+            Text = "Lọc khu vực:",
             Font = UITheme.FontBold,
             ForeColor = UITheme.TextDark,
-            Location = new Point(5, 10),
+            Location = new Point(0, 12),
             AutoSize = true
         };
         pnlFilter.Controls.Add(lblArea);
 
         _cbAreaFilter = new ComboBox
         {
-            Location = new Point(80, 6),
-            Size = new Size(180, 30),
+            Location = new Point(95, 8),
+            Size = new Size(200, 32),
             DropDownStyle = ComboBoxStyle.DropDownList,
             Font = UITheme.FontRegular
         };
         _cbAreaFilter.SelectedIndexChanged += (_, _) => FilterTables();
         pnlFilter.Controls.Add(_cbAreaFilter);
+
+        _lblTableStats = new Label
+        {
+            Text = "",
+            Font = UITheme.FontBold,
+            ForeColor = UITheme.TextMuted,
+            Location = new Point(320, 12),
+            AutoSize = true
+        };
+        pnlFilter.Controls.Add(_lblTableStats);
 
         // Table FlowLayoutPanel
         _flpTables = new FlowLayoutPanel
@@ -344,28 +444,63 @@ public class FrmMain : Form
             Dock = DockStyle.Fill,
             AutoScroll = true,
             BackColor = Color.Transparent,
-            Padding = new Padding(5)
+            Padding = new Padding(4)
         };
         pnlCenter.Controls.Add(_flpTables);
+        _flpTables.BringToFront();
     }
 
     private void SetupBillGridColumns()
     {
         _dgvBill.Columns.Clear();
-        _dgvBill.Columns.Add(new DataGridViewTextBoxColumn { Name = "Id", Visible = false });
-        _dgvBill.Columns.Add(new DataGridViewTextBoxColumn { Name = "ProductName", HeaderText = "Tên Món", Width = 150 });
-        _dgvBill.Columns.Add(new DataGridViewTextBoxColumn { Name = "Quantity", HeaderText = "SL", Width = 45 });
-        _dgvBill.Columns.Add(new DataGridViewTextBoxColumn { Name = "UnitPrice", HeaderText = "Đơn Giá", Width = 90 });
-        _dgvBill.Columns.Add(new DataGridViewTextBoxColumn { Name = "LineTotal", HeaderText = "Thành Tiền", Width = 95 });
+        _dgvBill.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        _dgvBill.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.False;
 
-        // Add Delete Button Column
+        _dgvBill.Columns.Add(new DataGridViewTextBoxColumn { Name = "Id", Visible = false });
+
+        var colName = new DataGridViewTextBoxColumn
+        {
+            Name = "ProductName",
+            HeaderText = "Tên Món",
+            FillWeight = 42
+        };
+        _dgvBill.Columns.Add(colName);
+
+        var colQty = new DataGridViewTextBoxColumn
+        {
+            Name = "Quantity",
+            HeaderText = "SL",
+            FillWeight = 14,
+            DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
+        };
+        _dgvBill.Columns.Add(colQty);
+
+        var colPrice = new DataGridViewTextBoxColumn
+        {
+            Name = "UnitPrice",
+            HeaderText = "Đơn Giá",
+            FillWeight = 22,
+            DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleRight }
+        };
+        _dgvBill.Columns.Add(colPrice);
+
+        var colTotal = new DataGridViewTextBoxColumn
+        {
+            Name = "LineTotal",
+            HeaderText = "Thành Tiền",
+            FillWeight = 22,
+            DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleRight }
+        };
+        _dgvBill.Columns.Add(colTotal);
+
         var btnCol = new DataGridViewButtonColumn
         {
             Name = "ColDelete",
             HeaderText = "",
             Text = "X",
             UseColumnTextForButtonValue = true,
-            Width = 35
+            Width = 36,
+            AutoSizeMode = DataGridViewAutoSizeColumnMode.None
         };
         _dgvBill.Columns.Add(btnCol);
 
@@ -383,8 +518,6 @@ public class FrmMain : Form
             }
         };
     }
-
-    private List<Table> _loadedTables = new();
 
     private async Task LoadTablesAsync()
     {
@@ -416,6 +549,9 @@ public class FrmMain : Form
         var displayTables = selectedArea == "Tất cả"
             ? _loadedTables
             : _loadedTables.Where(t => t.Area == selectedArea).ToList();
+
+        int occupiedCount = displayTables.Count(t => t.Status == 1);
+        _lblTableStats.Text = $"Hiển thị: {displayTables.Count} bàn ({occupiedCount} có khách, {displayTables.Count - occupiedCount} trống)";
 
         foreach (var table in displayTables)
         {
@@ -462,7 +598,7 @@ public class FrmMain : Form
 
         if (_currentBill != null && _currentBill.Details.Any())
         {
-            _lblSelectedTableStatus.Text = "Có khách";
+            _lblSelectedTableStatus.Text = "CÓ KHÁCH";
             _lblSelectedTableStatus.ForeColor = UITheme.TableOccupied;
             _btnSwitchTable.Enabled = true;
             _btnMergeTable.Enabled = true;
@@ -479,7 +615,7 @@ public class FrmMain : Form
         }
         else
         {
-            _lblSelectedTableStatus.Text = "Bàn trống";
+            _lblSelectedTableStatus.Text = "BÀN TRỐNG";
             _lblSelectedTableStatus.ForeColor = UITheme.TableEmpty;
             _lblSubTotal.Text = "0 đ";
             _btnSwitchTable.Enabled = false;
