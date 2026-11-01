@@ -1,0 +1,146 @@
+{
+  "settings": {
+    "components": {
+      "code": true,
+      "binaries": false
+    },
+    "targetId": ""
+  },
+  "analysisStartTime": "2026-11-01T09:30:41.7224635Z",
+  "analysisEndTime": "2026-11-01T09:30:42.5659482Z",
+  "privacyModeHelpUrl": "https://go.microsoft.com/fwlink/?linkid=2270980",
+  "stats": {
+    "summary": {
+      "projects": 1,
+      "issues": 1,
+      "incidents": 3,
+      "effort": 0
+    },
+    "charts": {
+      "severity": {
+        "Mandatory": 0,
+        "Optional": 0,
+        "Potential": 0,
+        "Information": 3
+      },
+      "category": {
+        "Pkg": 3
+      }
+    }
+  },
+  "projects": [
+    {
+      "path": "CoffeeShopManagement.csproj",
+      "startingProject": true,
+      "issues": 1,
+      "storyPoints": 0,
+      "properties": {
+        "appName": "CoffeeShopManagement",
+        "projectKind": "WinForms",
+        "frameworks": [
+          "net10.0-windows"
+        ],
+        "languages": [
+          "C#"
+        ],
+        "tools": [
+          "MSBuild"
+        ],
+        "isSdkStyle": true,
+        "isTestProject": false,
+        "numberOfFiles": 46,
+        "numberOfCodeFiles": 44,
+        "linesTotal": 6885,
+        "linesOfCode": 6645,
+        "totalApiScanned": 0,
+        "minLinesOfCodeToChange": 0,
+        "maxLinesOfCodeToChange": 0
+      },
+      "ruleInstances": [
+        {
+          "incidentId": "d52a2fda-25ef-4609-9278-a2695c04aff6",
+          "ruleId": "Pkg.0001",
+          "description": "Project references \u0027Microsoft.EntityFrameworkCore.SqlServer\u0027 8.0.11; proposed upgrade to 10.0.14.",
+          "projectPath": "CoffeeShopManagement.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "Microsoft.EntityFrameworkCore.SqlServer, 8.0.11",
+              "protected": "Microsoft.EntityFrameworkCore.SqlServer, 8.0.11"
+            },
+            "kind": "File",
+            "path": "CoffeeShopManagement.csproj",
+            "snippet": "Microsoft.EntityFrameworkCore.SqlServer, 8.0.11",
+            "protectedSnippet": "Microsoft.EntityFrameworkCore.SqlServer, 8.0.11",
+            "label": "Microsoft.EntityFrameworkCore.SqlServer 8.0.11",
+            "properties": {
+              "PackageId": "Microsoft.EntityFrameworkCore.SqlServer",
+              "PackageVersion": "8.0.11",
+              "PackageNewVersion": "10.0.14",
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "d53cf903-7d7c-4ffa-87a2-83a27fc363a7",
+          "ruleId": "Pkg.0001",
+          "description": "Project references \u0027Microsoft.EntityFrameworkCore.Tools\u0027 8.0.11; proposed upgrade to 10.0.14.",
+          "projectPath": "CoffeeShopManagement.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "Microsoft.EntityFrameworkCore.Tools, 8.0.11",
+              "protected": "Microsoft.EntityFrameworkCore.Tools, 8.0.11"
+            },
+            "kind": "File",
+            "path": "CoffeeShopManagement.csproj",
+            "snippet": "Microsoft.EntityFrameworkCore.Tools, 8.0.11",
+            "protectedSnippet": "Microsoft.EntityFrameworkCore.Tools, 8.0.11",
+            "label": "Microsoft.EntityFrameworkCore.Tools 8.0.11",
+            "properties": {
+              "PackageId": "Microsoft.EntityFrameworkCore.Tools",
+              "PackageVersion": "8.0.11",
+              "PackageNewVersion": "10.0.14",
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "c0c4fe53-972d-4fb0-8c3d-a4dc95e61fcc",
+          "ruleId": "Pkg.0001",
+          "description": "Project references \u0027Microsoft.EntityFrameworkCore.Design\u0027 8.0.11; proposed upgrade to 10.0.14.",
+          "projectPath": "CoffeeShopManagement.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "Microsoft.EntityFrameworkCore.Design, 8.0.11",
+              "protected": "Microsoft.EntityFrameworkCore.Design, 8.0.11"
+            },
+            "kind": "File",
+            "path": "CoffeeShopManagement.csproj",
+            "snippet": "Microsoft.EntityFrameworkCore.Design, 8.0.11",
+            "protectedSnippet": "Microsoft.EntityFrameworkCore.Design, 8.0.11",
+            "label": "Microsoft.EntityFrameworkCore.Design 8.0.11",
+            "properties": {
+              "PackageId": "Microsoft.EntityFrameworkCore.Design",
+              "PackageVersion": "8.0.11",
+              "PackageNewVersion": "10.0.14",
+              "PackageReplacements": null
+            }
+          }
+        }
+      ],
+      "features": []
+    }
+  ],
+  "rules": {
+    "Pkg.0001": {
+      "id": "Pkg.0001",
+      "isFeature": false,
+      "description": "Project references a package included in this upgrade.\n\nThe project references one of the packages being upgraded. This finding records the reference (current and proposed version) so the assessment lists every affected project even when no breaking API changes were detected.",
+      "label": "Project references an upgraded package",
+      "severity": "Information",
+      "effort": 0
+    }
+  }
+}
