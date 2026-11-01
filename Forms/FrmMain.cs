@@ -41,7 +41,7 @@ public partial class FrmMain : Form
         _authService = authService;
 
         // Cập nhật thông tin User trên Header
-        lblTenNhanVien.Text = _currentUser.FullName;
+
         lblVaiTro.Text = _currentUser.Role == "Admin" ? "QUẢN TRỊ VIÊN" : "THU NGÂN";
         lblVaiTro.BackColor = _currentUser.Role == "Admin" ? UITheme.Accent : UITheme.TableEmpty;
 
@@ -254,7 +254,7 @@ public partial class FrmMain : Form
             : _loadedTables.Where(t => t.Area == selectedArea).ToList();
 
         int occupiedCount = displayTables.Count(t => t.Status == 1);
-        lblThongKeBan.Text = $"Hiển thị: {displayTables.Count} bàn ({occupiedCount} có khách, {displayTables.Count - occupiedCount} trống)";
+        lblThongKeBan.Text = $"{displayTables.Count} bàn • {occupiedCount} khách • {displayTables.Count - occupiedCount} trống";
 
         foreach (var table in displayTables)
         {
