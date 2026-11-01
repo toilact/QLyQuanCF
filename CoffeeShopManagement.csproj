@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <None Include=".github\copilot-instructions.md" />
+    <None Include=".github\upgrades\scenarios\nuget-package-upgrade\tasks\01-upgrade-ef-core\progress-details.md" />
   </ItemGroup>
 
   <ItemGroup>

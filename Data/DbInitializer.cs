@@ -1,5 +1,6 @@
 using CoffeeShopManagement.Models;
 using CoffeeShopManagement.Utils;
+using Microsoft.EntityFrameworkCore;
 
 namespace CoffeeShopManagement.Data;
 
@@ -8,7 +9,7 @@ public static class DbInitializer
     public static void Initialize(AppDbContext context)
     {
         // Đảm bảo Database tồn tại
-        context.Database.EnsureCreated();
+        context.Database.Migrate();
 
         // 1. Seed Users
         if (!context.Users.Any())
